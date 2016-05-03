@@ -2,11 +2,38 @@ import pandas as pd
 import numpy as np
 import os
 import os.path
+import warnings
+warnings.filterwarnings('ignore', 'numpy equal will not check object identity in the future')
+
+class MultiColumnLabelEncoder:
+    def __init__(self,columns = None):
+        self.columns = columns # array of column names to encode
+
+    def fit(self,X,y=None):
+        return self # not relevant here
+
+    def transform(self,X):
+        from sklearn.preprocessing import LabelEncoder
+
+        '''
+        Transforms columns of X specified in self.columns using
+        LabelEncoder(). If no columns specified, transforms all
+        columns in X.
+        '''
+        output = X.copy()
+        if self.columns is not None:
+            for col in self.columns:
+                output[col] = LabelEncoder().fit_transform(output[col])
+        else:
+            for colname,col in output.iteritems():
+                output[colname] = LabelEncoder().fit_transform(col)
+        return output
+
+    def fit_transform(self,X,y=None):
+        return self.fit(X,y).transform(X)
 
 class DataManager:
     
-    ajax_events_Df = {}
-
     '''
         Init
 
@@ -30,8 +57,16 @@ class DataManager:
         ajax_events_list = []
         for subdir, dirs, files in os.walk(self.rootdir):
             for dir in dirs:
+                # Load the csv and append to a list
                 ajax_events_list.append(pd.read_csv(os.path.join(self.rootdir,dir,'ajax_events.csv'),usecols=fields))
+                break;
 
-        self.ajax_events_Df = pd.concat(ajax_events_list)
+        # Concat the list of the dataframes
+        df = pd.concat(ajax_events_list)
+                                                                        
+        # Transform all the string columns into integers
+        mcle = MultiColumnLabelEncoder(columns=fields)
+        mcle.fit(df)
 
-        return self.ajax_events_Df
+        # Returns a matrix of integers 
+        return mcle.transform(df)
