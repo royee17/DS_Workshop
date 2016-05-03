@@ -2,7 +2,6 @@ import warnings
 warnings.filterwarnings('ignore', 'numpy not_equal will not check object identity in the future')
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_samples, silhouette_score
-from sklearn.cross_validation import train_test_split
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -31,16 +30,16 @@ class AlgorithmManager(object):
 
         data = self.dataManager.loadData([time_key,item_key,session_key]) 
 
-        train, test = train_test_split(data, test_size = 0.2)
+        train, test = self.dataManager.splitData(data,isRandom=False)
         print('Training GRU4Rec with 100 hidden units')    
     
-        gru = gru4rec.GRU4Rec(layers=[100], loss='top1', batch_size=50, dropout_p_hidden=0.5, learning_rate=0.01, momentum=0.0,n_epochs=4
+        gru = gru4rec.GRU4Rec(layers=[100], loss='top1', batch_size=50, dropout_p_hidden=0.5, learning_rate=0.01, momentum=0.0,n_epochs=3
                                 ,session_key=session_key, item_key=item_key, time_key=time_key)
         gru.fit(train)
     
-        res = gru.evaluate_sessions_batch(test,session_key=session_key, item_key=item_key, time_key=time_key)
-        print('Recall@20: {}'.format(res[0]))
-        print('MRR@20: {}'.format(res[1]))
+        res = gru.evaluate_sessions_batch(test,cut_off=2,session_key=session_key, item_key=item_key, time_key=time_key)
+        print('Recall@2: {}'.format(res[0]))
+        print('MRR@2: {}'.format(res[1]))
 
     '''
         Runs K means on the Dataset
