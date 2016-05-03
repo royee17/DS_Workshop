@@ -1,11 +1,13 @@
 ﻿from AlgorithmManager import *
 from DataManager import *
 
-# Lior's Directory: C:\Workspace\University\DataScienceWorkshop
+# Lior's Directory
 liorDir = "C:\Workspace\University\DataScienceWorkshop"
-# Royee's Directory: 
+
+# Royee's Directory
 royeeDir = ""
-# Nadav's Directory:
+
+# Nadav's Directory
 nadavDir = ""
 
 dataManager = DataManager(liorDir)
