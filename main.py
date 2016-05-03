@@ -2,9 +2,13 @@
 from DataManager import *
 
 # Lior's Directory: C:\Workspace\University\DataScienceWorkshop
+liorDir = "C:\Workspace\University\DataScienceWorkshop"
 # Royee's Directory: 
+royeeDir = ""
 # Nadav's Directory:
-dataManager = DataManager("C:\Workspace\University\DataScienceWorkshop")
+nadavDir = ""
+
+dataManager = DataManager(liorDir)
 
 algorithmManager = AlgorithmManager(dataManager)
 
