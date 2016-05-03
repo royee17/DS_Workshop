@@ -41,9 +41,43 @@ class DataManager(object):
     '''
     def __init__(self,dir):
         self.rootdir = dir
-       
+      
+    
+    '''
+    Return: training, test
+            (as pandas dataframes)
+    Params:
+        df: pandas dataframe
+        trainPerc: float | percentage of data for training set (default=0.8)
+        testPerc: float | percentage of data for test set (default=0.2)
+        isRandom: bool | shuffle the data before the split (default = True)
+    '''
+    def splitData(self,df, trainPerc=0.8, testPerc=0.2, isRandom=True):
+
+        # create random list of indices
+        from random import shuffle
+        N = len(df)
+        l = range(N)
+        if(isRandom):
+            shuffle(l)
+
+        # get splitting indicies
+        trainLen = int(N*trainPerc)
+        testLen  = int(N*testPerc)
+
+        # get training, and test sets
+        train = df.ix[l[:trainLen]]
+        test     = df.ix[l[trainLen:]]
+        
+        print("Train Size: " + str(len(train)) + " Test Size: " + str(len(test)))
+
+        return train, test
+
     '''
         Load Data
+
+        Return: Data object (all categorical fields are converted to integers)
+            (as pandas dataframes)
 
         Params:
             fields (not required): Column names that we want to read
