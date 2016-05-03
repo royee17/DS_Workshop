@@ -2,10 +2,9 @@ import pandas as pd
 import numpy as np
 import os
 import os.path
-import warnings
-warnings.filterwarnings('ignore', 'numpy equal will not check object identity in the future')
 
-class MultiColumnLabelEncoder:
+
+class MultiColumnLabelEncoder(object):
     def __init__(self,columns = None):
         self.columns = columns # array of column names to encode
 
@@ -32,7 +31,7 @@ class MultiColumnLabelEncoder:
     def fit_transform(self,X,y=None):
         return self.fit(X,y).transform(X)
 
-class DataManager:
+class DataManager(object):
     
     '''
         Init
@@ -59,7 +58,6 @@ class DataManager:
             for dir in dirs:
                 # Load the csv and append to a list
                 ajax_events_list.append(pd.read_csv(os.path.join(self.rootdir,dir,'ajax_events.csv'),usecols=fields))
-                break;
 
         # Concat the list of the dataframes
         df = pd.concat(ajax_events_list)

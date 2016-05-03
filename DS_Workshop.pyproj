@@ -22,7 +22,10 @@
     <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="datamanager.py" />
+    <Compile Include="AlgorithmManager.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DataManager.py" />
     <Compile Include="main.py">
       <SubType>Code</SubType>
     </Compile>
