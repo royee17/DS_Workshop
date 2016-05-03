@@ -67,4 +67,8 @@ class DataManager(object):
         mcle.fit(df)
 
         # Returns a matrix of integers 
-        return mcle.transform(df)
+        res = mcle.transform(df)
+
+        print("The data has been loaded")
+        
+        return res

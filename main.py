@@ -6,7 +6,8 @@ from DataManager import *
 # Nadav's Directory:
 dataManager = DataManager("C:\Workspace\University\DataScienceWorkshop")
 
-data = dataManager.loadData(["QueryName","Aid"])
+algorithmManager = AlgorithmManager(dataManager)
 
-algorithmManager = AlgorithmManager()
-algorithmManager.runKMeans(data)
+#algorithmManager.runKMeans()
+
+algorithmManager.runGRU4Rec()

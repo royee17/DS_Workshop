@@ -1,22 +1,54 @@
+import warnings
+warnings.filterwarnings('ignore', 'numpy not_equal will not check object identity in the future')
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_samples, silhouette_score
+from sklearn.cross_validation import train_test_split
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
 
+import gru4rec
+
 class AlgorithmManager(object):
+
+    dataManager = {}
+
     '''
         Init
     '''
-    def __init__(self):
-        return;
+    def __init__(self,dataManager):
+        self.dataManager = dataManager
+
+    '''
+        Runs recurrent neural network based on the paper: http://arxiv.org/pdf/1511.06939v4.pdf
+    ''' 
+    def runGRU4Rec(self):   
+    
+        session_key = "Sid" # Or Aid
+        time_key = "TimeStamp"
+        item_key = "QueryName"
+
+        data = self.dataManager.loadData([time_key,item_key,session_key]) 
+
+        train, test = train_test_split(data, test_size = 0.2)
+        print('Training GRU4Rec with 100 hidden units')    
+    
+        gru = gru4rec.GRU4Rec(layers=[100], loss='top1', batch_size=50, dropout_p_hidden=0.5, learning_rate=0.01, momentum=0.0,n_epochs=4
+                                ,session_key=session_key, item_key=item_key, time_key=time_key)
+        gru.fit(train)
+    
+        res = gru.evaluate_sessions_batch(test,session_key=session_key, item_key=item_key, time_key=time_key)
+        print('Recall@20: {}'.format(res[0]))
+        print('MRR@20: {}'.format(res[1]))
 
     '''
         Runs K means on the Dataset
         Goes over K=2:5 and checks the performance using slihouette
     '''
-    def runKMeans(self,data):
+    def runKMeans(self):
+
+        data = self.dataManager.loadData(["QueryName","Aid"])
        
         data = data.values[1:1000] # If not it would cause out of memory with silhouette
 
