@@ -63,11 +63,10 @@ class DataManager(object):
 
         # get splitting indicies
         trainLen = int(N*trainPerc)
-        testLen  = int(N*testPerc)
 
         # get training, and test sets
-        train = df.ix[l[:trainLen]]
-        test     = df.ix[l[trainLen:]]
+        train = df.iloc[l[:trainLen]]
+        test     = df.iloc[l[trainLen:]]
         
         print("Train Size: " + str(len(train)) + " Test Size: " + str(len(test)))
 
