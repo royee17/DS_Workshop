@@ -11,6 +11,9 @@
 ###### Params:
       fields (not required): Column names that we want to read  
 
+##### splitData: 
+  Allows to split the data into train and test sets
+  
 ### AlgorithmManager
 
 ##### init:
