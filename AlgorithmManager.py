@@ -24,16 +24,17 @@ class AlgorithmManager(object):
     ''' 
     def runGRU4Rec(self):   
     
-        session_key = "Sid" # Or Aid
+        session_key = "Aid" # Or Sid
         time_key = "TimeStamp"
         item_key = "QueryName"
 
         data = self.dataManager.loadData([time_key,item_key,session_key]) 
 
         train, test = self.dataManager.splitData(data,isRandom=False)
-        print('Training GRU4Rec with 100 hidden units')    
+        print('Training GRU4Rec')    
     
-        gru = gru4rec.GRU4Rec(layers=[100], loss='top1', batch_size=50, dropout_p_hidden=0.5, learning_rate=0.01, momentum=0.0,n_epochs=3
+        gru = gru4rec.GRU4Rec(layers=[100], loss='top1', batch_size=50, dropout_p_hidden=0.5, learning_rate=0.01, momentum=0.0
+                              ,n_epochs=2,hidden_act = 'tanh', final_act='tanh'
                                 ,session_key=session_key, item_key=item_key, time_key=time_key)
         gru.fit(train)
     
