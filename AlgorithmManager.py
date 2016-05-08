@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
 
+import baselines
 import gru4rec
 
 class AlgorithmManager(object):
@@ -19,6 +20,23 @@ class AlgorithmManager(object):
     def __init__(self,dataManager):
         self.dataManager = dataManager
 
+    def runItemKnn(self):
+        
+        session_key = "Aid" # Or Sid
+        time_key = "TimeStamp"
+        item_key = "QueryName"
+
+        data = self.dataManager.loadData([time_key,item_key,session_key]) 
+        data = data.head(n=10000)
+
+        train, test = self.dataManager.splitData(data,isRandom=False)
+        print('Training ItemKnn')    
+        itemKnn = baselines.ItemKNN(n_sims = 100, lmbd = 20, alpha = 0.5, session_key = session_key, item_key = item_key, time_key = time_key)
+        itemKnn.fit(train)
+
+        res = baselines.evaluate_sessions(itemKnn,test,train,cut_off=2, session_key = session_key, item_key = item_key, time_key = time_key)
+        print('Recall@2: {}'.format(res[0]))
+
     '''
         Runs recurrent neural network based on the paper: http://arxiv.org/pdf/1511.06939v4.pdf
     ''' 
@@ -29,18 +47,25 @@ class AlgorithmManager(object):
         item_key = "QueryName"
 
         data = self.dataManager.loadData([time_key,item_key,session_key]) 
+        data = data.head(n=1000000)
 
         train, test = self.dataManager.splitData(data,isRandom=False)
         print('Training GRU4Rec')    
     
-        gru = gru4rec.GRU4Rec(layers=[100], loss='top1', batch_size=50, dropout_p_hidden=0.5, learning_rate=0.01, momentum=0.0
-                              ,n_epochs=2,hidden_act = 'tanh', final_act='tanh'
-                                ,session_key=session_key, item_key=item_key, time_key=time_key)
-        gru.fit(train)
+        for dropOut in range(1,5):
+            print('Dropout: ' + str(float(dropOut)/10.0))
+            gru = gru4rec.GRU4Rec(layers=[1000], loss='top1', batch_size=50, dropout_p_hidden=float(dropOut)/10.0, learning_rate=0.05, momentum=0.5
+                                  ,n_epochs=5,hidden_act = 'tanh', final_act='tanh'
+                                    ,session_key=session_key, item_key=item_key, time_key=time_key)
+            gru.fit(train)
     
-        res = gru.evaluate_sessions_batch(test,cut_off=2,session_key=session_key, item_key=item_key, time_key=time_key)
-        print('Recall@2: {}'.format(res[0]))
-        print('MRR@2: {}'.format(res[1]))
+            res = gru.evaluate_sessions_batch(test,cut_off=4,session_key=session_key, item_key=item_key, time_key=time_key)
+            print('Recall@4: {}'.format(res[0]))
+            print('MRR@4: {}'.format(res[1]))
+        
+            res = gru.evaluate_sessions_batch(test,cut_off=2,session_key=session_key, item_key=item_key, time_key=time_key)
+            print('Recall@2: {}'.format(res[0]))
+            print('MRR@2: {}'.format(res[1]))
 
     '''
         Runs K means on the Dataset

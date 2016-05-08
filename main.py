@@ -17,3 +17,5 @@ algorithmManager = AlgorithmManager(dataManager)
 #algorithmManager.runKMeans()
 
 algorithmManager.runGRU4Rec()
+
+#algorithmManager.runItemKnn()
