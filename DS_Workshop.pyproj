@@ -25,6 +25,7 @@
     <Compile Include="AlgorithmManager.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="baselines.py" />
     <Compile Include="DataManager.py" />
     <Compile Include="gru4rec.py" />
     <Compile Include="main.py">
