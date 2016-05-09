@@ -37,6 +37,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Gru4Rec_Results.xlsx" />
+    <Content Include="Plots\QueryIsFirstAllDays.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Plots\" />
   </ItemGroup>
   <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />

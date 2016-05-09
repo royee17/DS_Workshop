@@ -80,8 +80,9 @@ class DataManager(object):
 
         Params:
             fields (not required): Column names that we want to read
+            transformFields (not required): Transforms the String fields into int
     '''
-    def loadData(self,fields=False):
+    def loadData(self,fields=False,transformFields=True):
 
         if(not fields):
             fields = ["Browser","Device","Os","Resolution","Continent", "Country","Sid","Aid","Pn", "QueryName","Response",	"Result","Status","StatusText","Type"]
@@ -94,13 +95,16 @@ class DataManager(object):
 
         # Concat the list of the dataframes
         df = pd.concat(ajax_events_list)
-                                                                        
-        # Transform all the string columns into integers
-        mcle = MultiColumnLabelEncoder(columns=fields)
-        mcle.fit(df)
+        
+        if(transformFields):                                             
+            # Transform all the string columns into integers
+            mcle = MultiColumnLabelEncoder(columns=fields)
+            mcle.fit(df)
 
-        # Returns a matrix of integers 
-        res = mcle.transform(df)
+            # Returns a matrix of integers 
+            res = mcle.transform(df)
+        else:
+            res = df
 
         print("The data has been loaded")
         

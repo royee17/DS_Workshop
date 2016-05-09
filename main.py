@@ -16,6 +16,7 @@ algorithmManager = AlgorithmManager(dataManager)
 
 #algorithmManager.runKMeans()
 
-algorithmManager.runGRU4Rec()
+#algorithmManager.runGRU4Rec()
 
+algorithmManager.displayCountByQueryName()
 #algorithmManager.runItemKnn()

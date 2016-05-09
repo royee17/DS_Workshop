@@ -6,7 +6,7 @@ from sklearn.metrics import silhouette_samples, silhouette_score
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
-
+import pandas as pd
 import baselines
 import gru4rec
 
@@ -20,22 +20,26 @@ class AlgorithmManager(object):
     def __init__(self,dataManager):
         self.dataManager = dataManager
 
-    def runItemKnn(self):
+    '''
+        Displays the count of IsFirst for each QueryName divided by the number of IsFirst in the dataset
+    ''' 
+    def displayCountByQueryName(self):
+        data = self.dataManager.loadData(["QueryName","IsFirst"],transformFields=False)
+        firstCount = (data.IsFirst).sum()
+        notFirstCount = (data.IsFirst).count() - firstCount
         
-        session_key = "Aid" # Or Sid
-        time_key = "TimeStamp"
-        item_key = "QueryName"
+        result = data.groupby('QueryName').apply(
+             lambda group: (group.IsFirst.sum() / # Sum = count of true
+                            float(firstCount))
+         ).to_frame('First')
 
-        data = self.dataManager.loadData([time_key,item_key,session_key]) 
-        data = data.head(n=10000)
+        result['NotFirst'] = data.groupby('QueryName').apply(
+             lambda group: ((group.IsFirst.count() - group.IsFirst.sum()) /  # Count of total minus count of true
+                            float(notFirstCount))
+         )
+        result.plot(kind='bar')
+        plt.show()     
 
-        train, test = self.dataManager.splitData(data,isRandom=False)
-        print('Training ItemKnn')    
-        itemKnn = baselines.ItemKNN(n_sims = 100, lmbd = 20, alpha = 0.5, session_key = session_key, item_key = item_key, time_key = time_key)
-        itemKnn.fit(train)
-
-        res = baselines.evaluate_sessions(itemKnn,test,train,cut_off=2, session_key = session_key, item_key = item_key, time_key = time_key)
-        print('Recall@2: {}'.format(res[0]))
 
     '''
         Runs recurrent neural network based on the paper: http://arxiv.org/pdf/1511.06939v4.pdf
