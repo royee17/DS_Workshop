@@ -18,5 +18,6 @@ algorithmManager = AlgorithmManager(dataManager)
 
 #algorithmManager.runGRU4Rec()
 
-algorithmManager.displayCountByQueryName()
-#algorithmManager.runItemKnn()
+algorithmManager.displayAidBySid();
+#algorithmManager.displayCountByQueryName()
+

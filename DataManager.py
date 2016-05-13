@@ -2,34 +2,144 @@ import pandas as pd
 import numpy as np
 import os
 import os.path
+from sklearn.preprocessing import LabelEncoder
 
+class MultiColumnLabelEncoder(LabelEncoder):
+    """
+    Wraps sklearn LabelEncoder functionality for use on multiple columns of a
+    pandas dataframe.
 
-class MultiColumnLabelEncoder(object):
-    def __init__(self,columns = None):
-        self.columns = columns # array of column names to encode
+    """
+    def __init__(self, columns=None):
+        self.columns = np.asarray(columns)
 
-    def fit(self,X,y=None):
-        return self # not relevant here
+    def fit(self, dframe):
+        """
+        Fit label encoder to pandas columns.
 
-    def transform(self,X):
-        from sklearn.preprocessing import LabelEncoder
+        Access individual column classes via indexig `self.all_classes_`
 
-        '''
-        Transforms columns of X specified in self.columns using
-        LabelEncoder(). If no columns specified, transforms all
-        columns in X.
-        '''
-        output = X.copy()
+        Access individual column encoders via indexing
+        `self.all_encoders_`
+        """
+        # if columns are provided, iterate through and get `classes_`
         if self.columns is not None:
-            for col in self.columns:
-                output[col] = LabelEncoder().fit_transform(output[col])
+            # ndarray to hold LabelEncoder().classes_ for each
+            # column; should match the shape of specified `columns`
+            self.all_classes_ = np.ndarray(shape=self.columns.shape,
+                                           dtype=object)
+            self.all_encoders_ = np.ndarray(shape=self.columns.shape,
+                                            dtype=object)
+            for idx, column in enumerate(self.columns):
+                # fit LabelEncoder to get `classes_` for the column
+                le = LabelEncoder()
+                le.fit(dframe.loc[:, column].values)
+                # append the `classes_` to our ndarray container
+                self.all_classes_[idx] = (column,
+                                          np.array(le.classes_.tolist(),
+                                                  dtype=object))
+                # append this column's encoder
+                self.all_encoders_[idx] = le
         else:
-            for colname,col in output.iteritems():
-                output[colname] = LabelEncoder().fit_transform(col)
-        return output
+            # no columns specified; assume all are to be encoded
+            self.columns = dframe.iloc[:, :].columns
+            self.all_classes_ = np.ndarray(shape=self.columns.shape,
+                                           dtype=object)
+            for idx, column in enumerate(self.columns):
+                le = LabelEncoder()
+                le.fit(dframe.loc[:, column].values)
+                self.all_classes_[idx] = (column,
+                                          np.array(le.classes_.tolist(),
+                                                  dtype=object))
+                self.all_encoders_[idx] = le
+        return self
 
-    def fit_transform(self,X,y=None):
-        return self.fit(X,y).transform(X)
+    def fit_transform(self, dframe):
+        """
+        Fit label encoder and return encoded labels.
+
+        Access individual column classes via indexing
+        `self.all_classes_`
+
+        Access individual column encoders via indexing
+        `self.all_encoders_`
+
+        Access individual column encoded labels via indexing
+        `self.all_labels_`
+        """
+        # if columns are provided, iterate through and get `classes_`
+        if self.columns is not None:
+            # ndarray to hold LabelEncoder().classes_ for each
+            # column; should match the shape of specified `columns`
+            self.all_classes_ = np.ndarray(shape=self.columns.shape,
+                                           dtype=object)
+            self.all_encoders_ = np.ndarray(shape=self.columns.shape,
+                                            dtype=object)
+            self.all_labels_ = np.ndarray(shape=self.columns.shape,
+                                          dtype=object)
+            for idx, column in enumerate(self.columns):
+                # instantiate LabelEncoder
+                le = LabelEncoder()
+                # fit and transform labels in the column
+                dframe.loc[:, column] =\
+                    le.fit_transform(dframe.loc[:, column].values)
+                # append the `classes_` to our ndarray container
+                self.all_classes_[idx] = (column,
+                                          np.array(le.classes_.tolist(),
+                                                  dtype=object))
+                self.all_encoders_[idx] = le
+                self.all_labels_[idx] = le
+        else:
+            # no columns specified; assume all are to be encoded
+            self.columns = dframe.iloc[:, :].columns
+            self.all_classes_ = np.ndarray(shape=self.columns.shape,
+                                           dtype=object)
+            for idx, column in enumerate(self.columns):
+                le = LabelEncoder()
+                dframe.loc[:, column] = le.fit_transform(
+                        dframe.loc[:, column].values)
+                self.all_classes_[idx] = (column,
+                                          np.array(le.classes_.tolist(),
+                                                  dtype=object))
+                self.all_encoders_[idx] = le
+        return dframe
+
+    def transform(self, dframe):
+        """
+        Transform labels to normalized encoding.
+        """
+        if self.columns is not None:
+            for idx, column in enumerate(self.columns):
+                dframe.loc[:, column] = self.all_encoders_[
+                    idx].transform(dframe.loc[:, column].values)
+        else:
+            self.columns = dframe.iloc[:, :].columns
+            for idx, column in enumerate(self.columns):
+                dframe.loc[:, column] = self.all_encoders_[idx]\
+                    .transform(dframe.loc[:, column].values)
+        return dframe.loc[:, self.columns].values
+
+    def inverse_transform(self, dframe,specificColumn=None):
+        """
+        Transform labels back to original encoding.
+        """    
+
+        if self.columns is not None:
+            
+            for idx, column in enumerate(self.columns):
+                if specificColumn is not None and column == specificColumn:
+                    dframe.loc[:, specificColumn] = self.all_encoders_[idx]\
+                            .inverse_transform(dframe.loc[:, specificColumn].values)
+                    return dframe
+                else:
+                    dframe.loc[:, column] = self.all_encoders_[idx]\
+                        .inverse_transform(dframe.loc[:, column].values)
+        else:
+            self.columns = dframe.iloc[:, :].columns
+            for idx, column in enumerate(self.columns):
+                dframe.loc[:, column] = self.all_encoders_[idx]\
+                    .inverse_transform(dframe.loc[:, column].values)
+        return dframe
 
 class DataManager(object):
     
@@ -41,6 +151,7 @@ class DataManager(object):
     '''
     def __init__(self,dir):
         self.rootdir = dir
+        self.mcle = {}
       
     
     '''
@@ -98,11 +209,10 @@ class DataManager(object):
         
         if(transformFields):                                             
             # Transform all the string columns into integers
-            mcle = MultiColumnLabelEncoder(columns=fields)
-            mcle.fit(df)
+            self.mcle = MultiColumnLabelEncoder(columns=fields)
 
             # Returns a matrix of integers 
-            res = mcle.transform(df)
+            res = self.mcle.fit_transform(df)
         else:
             res = df
 

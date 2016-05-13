@@ -40,36 +40,69 @@ class AlgorithmManager(object):
         result.plot(kind='bar')
         plt.show()     
 
+    '''
+        Find Aid with many sessions
+    ''' 
+    def displayAidBySid(self):
+        data = self.dataManager.loadData(["Aid","Sid"],transformFields=False)
+        result = data.groupby('Aid').apply(
+             lambda group: (group.Sid.nunique())
+         )
+
+        # Remove top 5 extreme
+        for i in np.arange(5):
+            print(result.idxmax())
+            result = result[result < result.max()] 
+        # Aids:
+            # UnknownIbizaUser
+            #14bcea76-45fd-4b66-87a9-f63844a086c2
+            #53a13610-68d0-49a6-87ad-d3c121b0c2c2
+            #b7d6a7e8-6390-4e54-b653-0d1c055c7da3
+            #185610be-92f9-4d83-a567-4675a5615fac
+
+        ax = result.plot(kind='barh',color='red',figsize =(20,20))
+        ax.set_xlabel("# of unique Sid for each Aid")
+        ax.set_ylabel("Aid")
+        ax.axvline(x=result.mean(),c="blue",linewidth=2,ls='dashed')  
+        plt.xticks(np.arange(result.min(), result.max()+1, 5.0))
+        plt.savefig('GroupByAidCountSidForAll.png')
+        plt.show()     
 
     '''
         Runs recurrent neural network based on the paper: http://arxiv.org/pdf/1511.06939v4.pdf
     ''' 
     def runGRU4Rec(self):   
     
-        session_key = "Aid" # Or Sid
+        session_key = "Sid" #"Aid" # Or Sid
         time_key = "TimeStamp"
         item_key = "QueryName"
 
         data = self.dataManager.loadData([time_key,item_key,session_key]) 
-        data = data.head(n=1000000)
+        data = data.head(n=100)
 
         train, test = self.dataManager.splitData(data,isRandom=False)
         print('Training GRU4Rec')    
     
-        for dropOut in range(1,5):
-            print('Dropout: ' + str(float(dropOut)/10.0))
-            gru = gru4rec.GRU4Rec(layers=[1000], loss='top1', batch_size=50, dropout_p_hidden=float(dropOut)/10.0, learning_rate=0.05, momentum=0.5
-                                  ,n_epochs=5,hidden_act = 'tanh', final_act='tanh'
-                                    ,session_key=session_key, item_key=item_key, time_key=time_key)
-            gru.fit(train)
-    
-            res = gru.evaluate_sessions_batch(test,cut_off=4,session_key=session_key, item_key=item_key, time_key=time_key)
-            print('Recall@4: {}'.format(res[0]))
-            print('MRR@4: {}'.format(res[1]))
+        dropOut = 0.3
         
-            res = gru.evaluate_sessions_batch(test,cut_off=2,session_key=session_key, item_key=item_key, time_key=time_key)
-            print('Recall@2: {}'.format(res[0]))
-            print('MRR@2: {}'.format(res[1]))
+        print('Dropout: ' + str(float(dropOut)/10.0))
+        gru = gru4rec.GRU4Rec(layers=[1000], loss='top1', batch_size=50, dropout_p_hidden=float(dropOut)/10.0, learning_rate=0.05, momentum=0.5
+                                ,n_epochs=1,hidden_act = 'tanh', final_act='tanh'
+                                ,session_key=session_key, item_key=item_key, time_key=time_key)
+        gru.fit(train)
+                
+        #res = gru.evaluate_sessions_batch(test,cut_off=2,session_key=session_key, item_key=item_key, time_key=time_key)
+        #8288      12022  545         32
+        #8236      13441  545          9
+        #9026      35544  545         44
+        #8151      74800  545         61
+        #9215      75094  545         18
+        #9483      76459  545         19
+        predictions = gru.predict_next_batch(np.asarray([545,545,545,545,545]), np.asarray([32,9,44,61,18]), None, 5)
+        dfPred = pd.DataFrame(predictions.index)
+        out = self.dataManager.mcle.inverse_transform(dfPred,specificColumn=item_key)
+        print('Recall@2: {}'.format(res[0]))
+        print('MRR@2: {}'.format(res[1]))
 
     '''
         Runs K means on the Dataset

@@ -37,6 +37,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Gru4Rec_Results.xlsx" />
+    <Content Include="Plots\GroupByAidCountSidForAll.png" />
+    <Content Include="Plots\GroupByAidCountSidForDay1.png" />
     <Content Include="Plots\QueryIsFirstAllDays.png" />
   </ItemGroup>
   <ItemGroup>

@@ -439,21 +439,21 @@ class GRU4Rec:
         '''
         self.predict = None #In case someone would try to run with both items=None and not None on the same model without realizing that the predict function needs to be replaced
         test_data.is_copy = False
-        test_data.sort_values([session_key, time_key], inplace=True)
-        offset_sessions = np.zeros(test_data[session_key].nunique()+1, dtype=np.int32)
-        offset_sessions[1:] = test_data.groupby(session_key).size().cumsum()
+        test_data.sort_values([session_key, time_key], inplace=True) # Sort by session_key first and then by time_key
+        offset_sessions = np.zeros(test_data[session_key].nunique()+1, dtype=np.int32) # Create an array of size of unique sessions
+        offset_sessions[1:] = test_data.groupby(session_key).size().cumsum() # Fill the array with cumulative sum of items per session
         evalutation_point_count = 0
         mrr, recall = 0.0, 0.0
         if len(offset_sessions) - 1 < batch_size:
             batch_size = len(offset_sessions) - 1
         iters = np.arange(batch_size).astype(np.int32)
         maxiter = iters.max()
-        start = offset_sessions[iters]
-        end = offset_sessions[iters+1]
+        start = offset_sessions[iters] # Start of the batch, subarray of cumulative sum in size of 1:batch_size 
+        end = offset_sessions[iters+1] # Like start but starts one after and ends one afters
         in_idx = np.zeros(batch_size, dtype=np.int32)
         np.random.seed(42)
         while True:
-            valid_mask = iters >= 0
+            valid_mask = iters >= 0 # Converts iters array to array of booleans
             if valid_mask.sum() == 0:
                 break
             start_valid = start[valid_mask]
@@ -470,7 +470,7 @@ class GRU4Rec:
                     preds += np.random.rand(*preds.values.shape) * 1e-8
                 preds.fillna(0, inplace=True)
                 in_idx[valid_mask] = out_idx
-                if items is not None:
+                if items is not None: # The list of item ID that you want to compare the score of the relevant item to. If None, all items of the training set are used
                     others = preds.ix[items].values.T[valid_mask].T
                     targets = np.diag(preds.ix[in_idx].values)[valid_mask]
                     ranks = (others > targets).sum(axis=0) +1
