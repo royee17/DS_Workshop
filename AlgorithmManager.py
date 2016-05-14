@@ -1,4 +1,4 @@
-import warnings
+﻿import warnings
 warnings.filterwarnings('ignore', 'numpy not_equal will not check object identity in the future')
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_samples, silhouette_score
@@ -44,7 +44,7 @@ class AlgorithmManager(object):
         Find Aid with many sessions
     ''' 
     def displayAidBySid(self):
-        data = self.dataManager.loadData(["Aid","Sid"],transformFields=False)
+        data = self.dataManager.loadData(["Aid","Sid"],transformFields=False)        
         result = data.groupby('Aid').apply(
              lambda group: (group.Sid.nunique())
          )
@@ -72,6 +72,7 @@ class AlgorithmManager(object):
     '''
         Runs recurrent neural network based on the paper: http://arxiv.org/pdf/1511.06939v4.pdf
     ''' 
+    
     def runGRU4Rec(self):   
     
         session_key = "Sid" #"Aid" # Or Sid
@@ -262,4 +263,16 @@ class AlgorithmManager(object):
                          fontsize=14, fontweight='bold')
 
             plt.show()
+
+
+    '''
+        Attempt to learn how to use pandas + the new DataManager functions.
+    '''
+    def experimentDataManager(self):
+        data = self.dataManager.loadData(["Sid","QueryName"],transformFields=True)
+        print("\n")
+        data = data.sort_values(by='Sid')
+        print(data.head(50))
+        #numOfReq = self.dataManager.Query.nunique()
+        print('finished')
 
