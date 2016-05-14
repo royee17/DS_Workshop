@@ -151,9 +151,9 @@ class DataManager(object):
     '''
     def __init__(self,dir):
         self.rootdir = dir
+        self.fields = [];
         self.mcle = {}
-      
-    
+       
     '''
     Return: training, test
             (as pandas dataframes)
@@ -195,21 +195,22 @@ class DataManager(object):
     '''
     def loadData(self,fields=False,transformFields=True):
 
-        if(not fields):
-            fields = ["Browser","Device","Os","Resolution","Continent", "Country","Sid","Aid","Pn", "QueryName","Response",	"Result","Status","StatusText","Type"]
+        self.fields = fields;
+        if(not self.fields):
+            self.fields = ["Browser","Device","Os","Resolution","Continent", "Country","Sid","Aid","Pn", "QueryName","Response","Result","Status","StatusText","Type"]
        
         ajax_events_list = []
         for subdir, dirs, files in os.walk(self.rootdir):
             for dir in dirs:
                 # Load the csv and append to a list
-                ajax_events_list.append(pd.read_csv(os.path.join(self.rootdir,dir,'ajax_events.csv'),usecols=fields))
+                ajax_events_list.append(pd.read_csv(os.path.join(self.rootdir,dir,'ajax_events.csv'),usecols=self.fields))
 
         # Concat the list of the dataframes
         df = pd.concat(ajax_events_list)
         
         if(transformFields):                                             
             # Transform all the string columns into integers
-            self.mcle = MultiColumnLabelEncoder(columns=fields)
+            self.mcle = MultiColumnLabelEncoder(columns=self.fields)
 
             # Returns a matrix of integers 
             res = self.mcle.fit_transform(df)
@@ -219,3 +220,24 @@ class DataManager(object):
         print("The data has been loaded")
         
         return res
+
+    '''
+        Searches for the label in the decoded dataset and then encodes back and returns the encoded value for the label 
+
+        Ex: dataManager.getEncodedByLabel(data,"Aid","21674def-1c93-46e5-95ab-015e904fb10f")
+
+        Params:
+            data: The encoded data (transformFields=true in load data)
+            field: The field that the label comes from
+            value: The value we are looking for
+    '''
+    def getEncodedByLabel(self,data,field,value):
+
+        idx = self.fields.index(field);
+        # Decode the dataset to the regular dataset
+        inversed = self.mcle.all_encoders_[idx].inverse_transform(data.loc[:, field].values);
+
+        # Search for the label and get the encoded value
+        ret = self.mcle.all_encoders_[idx].transform(inversed[inversed == value])[0];
+
+        return ret;

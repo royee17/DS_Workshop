@@ -341,7 +341,7 @@ class GRU4Rec:
                 print('Epoch {}: NaN error!'.format(str(epoch)))
                 self.error_during_train = True
                 return
-            print('Epoch{}\tloss: {:.6f}'.format(epoch, avgc))
+            #print('Epoch{}\tloss: {:.6f}'.format(epoch, avgc))
 
     def predict_next_batch(self, session_ids, input_item_ids, predict_for_item_ids=None, batch=100):
         '''

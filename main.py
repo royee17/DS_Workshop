@@ -2,7 +2,7 @@
 from DataManager import *
 
 # Lior's Directory
-liorDir = "C:\Workspace\University\DataScienceWorkshop"
+liorDir = "D:\DataScienceWorkshop"
 
 # Royee's Directory
 royeeDir = ""
@@ -16,8 +16,8 @@ algorithmManager = AlgorithmManager(dataManager)
 
 #algorithmManager.runKMeans()
 
-#algorithmManager.runGRU4Rec()
+algorithmManager.runGRU4RecForSpecificAid()
 
-algorithmManager.displayAidBySid();
+#algorithmManager.displayAidBySid();
 #algorithmManager.displayCountByQueryName()
 
