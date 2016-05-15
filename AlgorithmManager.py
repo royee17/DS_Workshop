@@ -2,7 +2,7 @@
 warnings.filterwarnings('ignore', 'numpy not_equal will not check object identity in the future')
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_samples, silhouette_score
-
+from time import clock
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
@@ -266,13 +266,50 @@ class AlgorithmManager(object):
 
 
     '''
-        Attempt to learn how to use pandas + the new DataManager functions.
-    '''
-    def experimentDataManager(self):
-        data = self.dataManager.loadData(["Sid","QueryName"],transformFields=True)
-        print("\n")
-        data = data.sort_values(by='Sid')
-        print(data.head(50))
-        #numOfReq = self.dataManager.Query.nunique()
-        print('finished')
+        Utility function for clustering.
 
+        Pre: gets a file path or False, and a pivot label, default is Aid.
+
+        Post: Process the dataframe, and creates a ndarray of operations by the pivot label.
+                If the file path isn't False, saves the ndarray to file.
+    '''
+    def loadOperationsByOneOfK(self, file, pivot='Aid'):
+        
+        data = self.dataManager.loadData([pivot,"QueryName"],transformFields=True)
+        print("\n")
+        data = data.sort_values(by=pivot)
+        #print(data.head(50))
+        temp = data.max()     
+        numOfTypes = temp['QueryName'] + 1
+        numOfPivots = temp[pivot]  + 1      
+        
+        # print("num of operation types {0} , num of pivot items {1}".format(numOfTypes, numOfPivots))
+        
+        vectByTypes = np.zeros((numOfPivots,numOfTypes)) # Constructs a ndarray of size number of unique Sids x number of possible requests
+        
+        # Initializing status parameters.
+        t1 = clock()       
+        i = 0
+
+        for row in data.itertuples():  
+            # iat picks the item in the current row, 0 for the pivot, and 1 for the operation
+            curPivot = row[1] # the current Session ID
+            oper = row[2] # the current Operation Type
+            value = vectByTypes.item((curPivot,oper))                
+            
+            vectByTypes.itemset(((curPivot,oper)), value + 1) # Adding 1 to the current operation type for the current SID using Numpy quick access functions
+            value = vectByTypes.item((curPivot,oper))            
+            
+            # Status print every 100,000 iterations
+            t2 = clock()
+            if (i%100000 == 0 and i!=0):
+                print('Processed {0} rows in {1} seconds'.format(i, t2-t1))
+
+            i = i + 1  
+
+        print(vectByTypes[1:10])
+        if file != False:
+            vectByTypes.tofile(file, sep = "," , format = "%s")
+
+        print('Finshed processing all the data.')
+        

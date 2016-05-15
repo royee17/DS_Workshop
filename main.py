@@ -9,13 +9,27 @@ liorDir = "D:\DataScienceWorkshop"
 royeeDir = ""
 
 # Nadav's Directory
-nadavDir = "D:\DataScienceWorkshop"
+nadavfile = "attempt2.txt"
 
-dataManager = DataManager(nadavDir)
+dataManager = DataManager(liorDir)
 algorithmManager = AlgorithmManager(dataManager)
 
-algorithmManager = AlgorithmManager(dataManager)
-algorithmManager.experimentDataManager()
+algorithmManager.loadOperationsByOneOfK(False, 'Sid')
+
+'''
+    Trying to recover the ndarray
+
+
+str = ""
+for i in range(64):
+    str = str + "i4,"
+str = str + "i4"
+AidArray = np.dtype(str)
+vects = np.fromfile(nadavfile, dtype = AidArray)
+print "\n\n\n The data recovered:\n\n"
+print(vects[1:10])
+'''
+#algorithmManager.runKMeans()
 #algorithmManager.displayAidBySid()
 #algorithmManager.displayCountByQueryName()
 
