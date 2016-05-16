@@ -179,7 +179,7 @@ class AlgorithmManager(object):
         # Preparing the data : loading, normalizing (if selected) and selecting 100k record randomly.
         data = self.loadOperationsByOneOfK(False, pivot, normalize, factor)
         np.random.shuffle(data)
-        data = data[1:50000,:] # Higher amount of vectors cause memory error on silhouette_score
+        #data = data[1:50000,:] # Higher amount of vectors cause memory error on silhouette_score
         
         # Preparing the data to compare, creating an average vector of the pivots.
         avgVec = np.mean(data,axis = 0)        
@@ -201,12 +201,12 @@ class AlgorithmManager(object):
             ax1.set_ylim([0, len(data) + (n_clusters + 1) * 10])
             '''
             # Initialize the clusterer with n_clusters value, 15 runs of the algorithm and a random generator
-            clusterer = KMeans(n_clusters=n_clusters, n_init=15, init='k-means++')
+            clusterer = KMeans(n_clusters=n_clusters, n_init=30, init='k-means++', max_iter = 1000)
             cluster_labels = clusterer.fit_predict(data)
 
             # The silhouette_score gives the average value for all the samples.
             # This gives a perspective into the density and separation of the formed clusters
-            silhouette_avg = silhouette_score(data, cluster_labels) 
+            #silhouette_avg = silhouette_score(data, cluster_labels) 
             
             fid.write("The cluster centers for K={0}\n".format(n_clusters))
             fid.write(str(clusterer.cluster_centers_))
@@ -227,7 +227,7 @@ class AlgorithmManager(object):
             
             fid.write("\n\n")
             
-            fid.write("For {0} clusters the average silhouette score is : {1}".format(n_clusters, silhouette_avg))
+            #fid.write("For {0} clusters the average silhouette score is : {1}".format(n_clusters, silhouette_avg))
             '''
             # Compute the silhouette scores for each sample
             sample_silhouette_values = silhouette_samples(data, cluster_labels)
