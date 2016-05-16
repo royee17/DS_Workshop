@@ -14,7 +14,7 @@ nadavfile = "attempt2.txt"
 dataManager = DataManager(liorDir)
 algorithmManager = AlgorithmManager(dataManager)
 
-algorithmManager.loadOperationsByOneOfK(False, 'Sid')
+
 
 '''
     Trying to recover the ndarray
@@ -29,7 +29,10 @@ vects = np.fromfile(nadavfile, dtype = AidArray)
 print "\n\n\n The data recovered:\n\n"
 print(vects[1:10])
 '''
-#algorithmManager.runKMeans()
+algorithmManager.runKMeans(pivot = 'Aid', file="Aidcenters1.txt", normalize = False)
+algorithmManager.runKMeans(pivot = 'Aid', file="Aidcenters2.txt", normalize = True)
+algorithmManager.runKMeans(pivot = 'Sid', file="Sidcenters3.txt", normalize = False)
+algorithmManager.runKMeans(pivot = 'Sid', file="Sidcenters4.txt", normalize = True)
 #algorithmManager.displayAidBySid()
 #algorithmManager.displayCountByQueryName()
 

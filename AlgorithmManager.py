@@ -174,16 +174,22 @@ class AlgorithmManager(object):
         Runs K means on the Dataset
         Goes over K=2:5 and checks the performance using slihouette
     '''
-    def runKMeans(self):
+    def runKMeans(self, pivot, file = False, normalize = False, factor = 100):
+        
+        # Preparing the data : loading, normalizing (if selected) and selecting 100k record randomly.
+        data = self.loadOperationsByOneOfK(False, pivot, normalize, factor)
+        np.random.shuffle(data)
+        data = data[1:50000,:] # Higher amount of vectors cause memory error on silhouette_score
+        
+        # Preparing the data to compare, creating an average vector of the pivots.
+        avgVec = np.mean(data,axis = 0)        
+        fid = open(file, 'w')
+        np.set_printoptions(precision=3,suppress = True) # Prettier printing.
+        fid.write(str(avgVec))
 
-        data = self.dataManager.loadData(["QueryName","Aid"])
-       
-        data = data.values[1:1000] # If not it would cause out of memory with silhouette
-
-        range_n_clusters = [2, 3, 4, 5]
-
-        for n_clusters in range_n_clusters:
-            print("Running KMeans on " + str(n_clusters) + " Clusters")
+        for n_clusters in range(2,25):
+            print "Running KMeans on {0} Clusters".format(n_clusters)
+            '''
             # Create a subplot with 1 row and 2 columns
             fig, (ax1, ax2) = plt.subplots(1, 2)
             fig.set_size_inches(18, 7)
@@ -193,24 +199,42 @@ class AlgorithmManager(object):
             # The (n_clusters+1)*10 is for inserting blank space between silhouette
             # plots of individual clusters, to demarcate them clearly.
             ax1.set_ylim([0, len(data) + (n_clusters + 1) * 10])
-
-            # Initialize the clusterer with n_clusters value and a random generator
-            clusterer = KMeans(n_clusters=n_clusters, random_state=10)
+            '''
+            # Initialize the clusterer with n_clusters value, 15 runs of the algorithm and a random generator
+            clusterer = KMeans(n_clusters=n_clusters, n_init=15, init='k-means++')
             cluster_labels = clusterer.fit_predict(data)
 
             # The silhouette_score gives the average value for all the samples.
             # This gives a perspective into the density and separation of the formed clusters
-            silhouette_avg = silhouette_score(data, cluster_labels)
-            print("For n_clusters =", n_clusters,
-                  "The average silhouette_score is :", silhouette_avg)
+            silhouette_avg = silhouette_score(data, cluster_labels) 
+            
+            fid.write("The cluster centers for K={0}\n".format(n_clusters))
+            fid.write(str(clusterer.cluster_centers_))
+            #fid.write("\nThe cluster centers compared to the mean for K={0}\n".format(n_clusters))
+            #fid.write(str(clusterer.cluster_centers_/avgVec * 100))
+              
+            for i in range(n_clusters):
+                cluster_i_size = 0
+                for val in cluster_labels:
+                    if val == i:
+                        cluster_i_size = cluster_i_size + 1               
+                fid.write("\nThe size of cluster {0} is {1}".format(i,cluster_i_size))
 
+
+            fid.write("\nThe inertia is {0}\n\n".format(clusterer.inertia_))
+            fid.write("\n")
+           
+            
+            fid.write("\n\n")
+            
+            fid.write("For {0} clusters the average silhouette score is : {1}".format(n_clusters, silhouette_avg))
+            '''
             # Compute the silhouette scores for each sample
             sample_silhouette_values = silhouette_samples(data, cluster_labels)
 
             y_lower = 10
             for i in range(n_clusters):
-                # Aggregate the silhouette scores for samples belonging to
-                # cluster i, and sort them
+                # Aggregate the silhouette scores for samples belonging to cluster i, and sort them
                 ith_cluster_silhouette_values = \
                     sample_silhouette_values[cluster_labels == i]
 
@@ -257,12 +281,12 @@ class AlgorithmManager(object):
             ax2.set_title("The visualization of the clustered data.")
             ax2.set_xlabel("Feature space for the 1st feature")
             ax2.set_ylabel("Feature space for the 2nd feature")
-
+            
             plt.suptitle(("Silhouette analysis for KMeans clustering on sample data "
                           "with n_clusters = %d" % n_clusters),
                          fontsize=14, fontweight='bold')
 
-            plt.show()
+            plt.show()'''
 
 
     '''
@@ -273,17 +297,19 @@ class AlgorithmManager(object):
         Post: Process the dataframe, and creates a ndarray of operations by the pivot label.
                 If the file path isn't False, saves the ndarray to file.
     '''
-    def loadOperationsByOneOfK(self, file, pivot='Aid'):
+    def loadOperationsByOneOfK(self, file, pivot='Aid', normalize=True, factor=100):
         
         data = self.dataManager.loadData([pivot,"QueryName"],transformFields=True)
         print("\n")
         data = data.sort_values(by=pivot)
         #print(data.head(50))
+
+        # Compute the One of K matrix's size.
         temp = data.max()     
         numOfTypes = temp['QueryName'] + 1
         numOfPivots = temp[pivot]  + 1      
         
-        # print("num of operation types {0} , num of pivot items {1}".format(numOfTypes, numOfPivots))
+        print("num of operation types {0} , num of pivot items {1}".format(numOfTypes, numOfPivots))
         
         vectByTypes = np.zeros((numOfPivots,numOfTypes)) # Constructs a ndarray of size number of unique Sids x number of possible requests
         
@@ -291,11 +317,10 @@ class AlgorithmManager(object):
         t1 = clock()       
         i = 0
 
-        for row in data.itertuples():  
-            # iat picks the item in the current row, 0 for the pivot, and 1 for the operation
-            curPivot = row[1] # the current Session ID
+        for row in data.itertuples():             
+            curPivot = row[1] # the current Session\User ID
             oper = row[2] # the current Operation Type
-            value = vectByTypes.item((curPivot,oper))                
+            value = vectByTypes.item((curPivot,oper)) # reads the former count of SID\AID x Operation
             
             vectByTypes.itemset(((curPivot,oper)), value + 1) # Adding 1 to the current operation type for the current SID using Numpy quick access functions
             value = vectByTypes.item((curPivot,oper))            
@@ -306,10 +331,18 @@ class AlgorithmManager(object):
                 print('Processed {0} rows in {1} seconds'.format(i, t2-t1))
 
             i = i + 1  
+        
+        if normalize == True:
+            maxVect = vectByTypes.max(axis = 0)
+            print "The maximum of each row before normalization is : {0}".format(maxVect)
+            vectByTypes = vectByTypes / maxVect * factor
+            maxVect = vectByTypes.max(axis = 0)
+            print "and after normalization is : {0}".format(maxVect)
 
-        print(vectByTypes[1:10])
+
+        # print(vectByTypes[1:10])
         if file != False:
             vectByTypes.tofile(file, sep = "," , format = "%s")
-
-        print('Finshed processing all the data.')
         
+        print('Finshed processing all the data.')
+        return vectByTypes
