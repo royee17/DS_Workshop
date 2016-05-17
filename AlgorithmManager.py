@@ -27,7 +27,6 @@ class AlgorithmManager(object):
             Add 1 for weight when the same tuple of methods are called
     '''
     def displayGraph(self):
-        plt.figure(figsize=(20,20))
 
         data = self.dataManager.loadData(["QueryName","TimeStamp"],transformFields=False)
 
@@ -44,29 +43,38 @@ class AlgorithmManager(object):
             except:
                 G.add_edge(fromQuery,toQuery,weight=1)
 
-        elarge=[(u,v) for (u,v,d) in G.edges(data=True) if d['weight'] >1000]
-        esmall=[(u,v) for (u,v,d) in G.edges(data=True) if d['weight'] <=1000]
+        elarge=[(u,v) for (u,v,d) in G.edges(data=True) if d['weight'] >10000]
+        esmall=[(u,v) for (u,v,d) in G.edges(data=True) if d['weight'] <=10000]
 
-        pos=nx.spring_layout(G,k=0.9,iterations=20) # positions for all nodes
-        #pos=graphviz_layout(G,prog='circo')
+        pos=nx.circular_layout(G)
+        plt.figure(figsize=(20,20))
 
         # nodes
-        nx.draw_networkx_nodes(G,pos)
+        nx.draw_networkx_nodes(G,pos,
+                               node_size=[v * 10 for v in nx.degree(G).values()]
+                               ,alpha=0.5)
 
         # edges
         nx.draw_networkx_edges(G,pos,edgelist=elarge,
-                        width=6)
-        nx.draw_networkx_edges(G,pos,edgelist=esmall,
-                        width=6,alpha=0.5,edge_color='b',style='dashed')
+                                width=1)
+        # nx.draw_networkx_edges(G,pos,edgelist=esmall,
+        #                width=1,alpha=0.1,edge_color='b',style='dashed')
 
         # weights
-        weights = nx.get_edge_attributes(G,'weight')
-        nx.draw_networkx_edge_labels(G,pos,edge_labels=weights)
+        #weights = nx.get_edge_attributes(G,'weight')
+        #nx.draw_networkx_edge_labels(G,pos,edge_labels=weights)
 
-        # labels
-        nx.draw_networkx_labels(G,pos,font_size=8,font_family='sans-serif')
-        plt.savefig("weighted_graph.png") # save as png
-        plt.show() # display
+        labels = {}    
+        for edge in elarge:
+            labels[edge[0]] = edge[0]
+            labels[edge[1]] = edge[1]
+
+        # Labels for the nodes in eLarge
+        nx.draw_networkx_labels(G,pos,labels,font_size=12,font_color='b')
+        
+        #plt.savefig("D:\weighted_graph_noconnection.png")
+
+        plt.show()
 
     '''
         Displays the count of IsFirst for each QueryName divided by the number of IsFirst in the dataset
