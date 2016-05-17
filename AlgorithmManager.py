@@ -8,7 +8,7 @@ import matplotlib.cm as cm
 import numpy as np
 import pandas as pd
 import baselines
-import gru4rec
+import networkx as nx
 
 class AlgorithmManager(object):
 
@@ -19,6 +19,54 @@ class AlgorithmManager(object):
     '''
     def __init__(self,dataManager):
         self.dataManager = dataManager
+    
+    '''
+        Graph -
+            Each node is a different method
+            Each edge is a sequence of method->method by timestamp
+            Add 1 for weight when the same tuple of methods are called
+    '''
+    def displayGraph(self):
+        plt.figure(figsize=(20,20))
+
+        data = self.dataManager.loadData(["QueryName","TimeStamp"],transformFields=False)
+
+        data.is_copy = False
+        data.sort_values(["TimeStamp"], inplace=True) # Sort by "TimeStamp"
+                
+        G=nx.DiGraph()
+
+        for i in range(len(data)-1):
+            fromQuery = data["QueryName"].values[i];
+            toQuery = data["QueryName"].values[i+1];
+            try:
+                G[fromQuery][toQuery]['weight']=G[fromQuery][toQuery]['weight']+1;
+            except:
+                G.add_edge(fromQuery,toQuery,weight=1)
+
+        elarge=[(u,v) for (u,v,d) in G.edges(data=True) if d['weight'] >1000]
+        esmall=[(u,v) for (u,v,d) in G.edges(data=True) if d['weight'] <=1000]
+
+        pos=nx.spring_layout(G,k=0.9,iterations=20) # positions for all nodes
+        #pos=graphviz_layout(G,prog='circo')
+
+        # nodes
+        nx.draw_networkx_nodes(G,pos)
+
+        # edges
+        nx.draw_networkx_edges(G,pos,edgelist=elarge,
+                        width=6)
+        nx.draw_networkx_edges(G,pos,edgelist=esmall,
+                        width=6,alpha=0.5,edge_color='b',style='dashed')
+
+        # weights
+        weights = nx.get_edge_attributes(G,'weight')
+        nx.draw_networkx_edge_labels(G,pos,edge_labels=weights)
+
+        # labels
+        nx.draw_networkx_labels(G,pos,font_size=8,font_family='sans-serif')
+        plt.savefig("weighted_graph.png") # save as png
+        plt.show() # display
 
     '''
         Displays the count of IsFirst for each QueryName divided by the number of IsFirst in the dataset
@@ -68,13 +116,11 @@ class AlgorithmManager(object):
         plt.savefig('GroupByAidCountSidForAll.png')
         plt.show()
           
-
     '''
         Runs recurrent neural network based on the paper: http://arxiv.org/pdf/1511.06939v4.pdf
     ''' 
-    
     def runGRU4Rec(self):   
-    
+        import gru4rec
         session_key = "Sid" #"Aid" # Or Sid
         time_key = "TimeStamp"
         item_key = "QueryName"
@@ -96,7 +142,7 @@ class AlgorithmManager(object):
                     res = gru.evaluate_sessions_batch(test, cut_off=2, batch_size=batch_size, 
                                                 session_key=session_key, item_key=item_key, time_key=time_key)
                     print('Recall@2: {}'.format(res[0]))
-                    #print('MRR@2: {}'.format(res[1]))
+                    print('MRR@2: {}'.format(res[1]))
 
     '''
         Runs recurrent neural network based on the paper: http://arxiv.org/pdf/1511.06939v4.pdf
@@ -125,6 +171,7 @@ class AlgorithmManager(object):
     ''' 
     def runGRU4RecForSpecificAid(self):   
     
+        import gru4rec
         session_key = "Sid" #"Aid" # Or Sid
         time_key = "TimeStamp"
         item_key = "QueryName"
@@ -287,8 +334,7 @@ class AlgorithmManager(object):
                          fontsize=14, fontweight='bold')
 
             plt.show()'''
-
-
+            
     '''
         Utility function for clustering.
 

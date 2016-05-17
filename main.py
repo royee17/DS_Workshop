@@ -29,14 +29,14 @@ vects = np.fromfile(nadavfile, dtype = AidArray)
 print "\n\n\n The data recovered:\n\n"
 print(vects[1:10])
 '''
-algorithmManager.runKMeans(pivot = 'Aid', file="AidcentersNoSil1.txt", normalize = False)
-algorithmManager.runKMeans(pivot = 'Aid', file="AidcentersNoSil2.txt", normalize = True)
-algorithmManager.runKMeans(pivot = 'Sid', file="SidcentersNoSil3.txt", normalize = False)
-algorithmManager.runKMeans(pivot = 'Sid', file="SidcentersNoSil4.txt", normalize = True)
+#algorithmManager.runKMeans(pivot = 'Aid', file="AidcentersNoSil1.txt", normalize = False)
+#algorithmManager.runKMeans(pivot = 'Aid', file="AidcentersNoSil2.txt", normalize = True)
+#algorithmManager.runKMeans(pivot = 'Sid', file="SidcentersNoSil3.txt", normalize = False)
+#algorithmManager.runKMeans(pivot = 'Sid', file="SidcentersNoSil4.txt", normalize = True)
 #algorithmManager.displayAidBySid()
 #algorithmManager.displayCountByQueryName()
 
-
+algorithmManager.displayGraph()
 #algorithmManager.runKMeans()
 
 #algorithmManager.runGRU4RecForSpecificAid()
