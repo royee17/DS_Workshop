@@ -96,6 +96,19 @@ class AlgorithmManager(object):
         result.plot(kind='bar')
         plt.show()     
 
+
+    '''
+        Display Sessions and queries
+    ''' 
+    def displaySidAndQueryName(self):
+        data = self.dataManager.loadData(["Aid","Sid","QueryName"],transformFields=False)        
+        
+        # Specific Aid
+        dataAid = data[data.Aid == "012abc55-5801-494f-a77f-a799f1d855de"]
+        colors = cm.gist_ncar(np.linspace(0,1,dataAid.QueryName.nunique()))
+        pd.crosstab(dataAid.Sid, dataAid.QueryName).plot.barh(stacked=True, color=colors,figsize=(20, 20))
+        plt.show()
+
     '''
         Find Aid with many sessions
     ''' 

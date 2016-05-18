@@ -35,8 +35,8 @@ print(vects[1:10])
 #algorithmManager.runKMeans(pivot = 'Sid', file="SidcentersNoSil4.txt", normalize = True)
 #algorithmManager.displayAidBySid()
 #algorithmManager.displayCountByQueryName()
-
-algorithmManager.displayGraph()
+algorithmManager.displaySidAndQueryName();
+#algorithmManager.displayGraph()
 #algorithmManager.runKMeans()
 
 #algorithmManager.runGRU4RecForSpecificAid()
