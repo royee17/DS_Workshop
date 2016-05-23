@@ -13,8 +13,8 @@ nadavfile = "attempt2.txt"
 
 dataManager = DataManager(liorDir)
 algorithmManager = AlgorithmManager(dataManager)
-
-
+#algorithmManager.runHierarchicalClustering(file="HierarchicalClusteringAttempt1.txt", normalize = False)
+algorithmManager.runHierarchicalClustering(file=False, normalize = False)
 
 '''
     Trying to recover the ndarray
@@ -29,10 +29,12 @@ vects = np.fromfile(nadavfile, dtype = AidArray)
 print "\n\n\n The data recovered:\n\n"
 print(vects[1:10])
 '''
+'''
 algorithmManager.runKMeans(pivot = 'Aid', file="AidcentersNoSil1.txt", normalize = False)
 algorithmManager.runKMeans(pivot = 'Aid', file="AidcentersNoSil2.txt", normalize = True)
 algorithmManager.runKMeans(pivot = 'Sid', file="SidcentersNoSil3.txt", normalize = False)
 algorithmManager.runKMeans(pivot = 'Sid', file="SidcentersNoSil4.txt", normalize = True)
+'''
 #algorithmManager.displayAidBySid()
 #algorithmManager.displayCountByQueryName()
 
