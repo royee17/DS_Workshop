@@ -10,7 +10,7 @@ import matplotlib.cm as cm
 import numpy as np
 import pandas as pd
 import baselines
-import gru4rec
+import networkx as nx
 
 class AlgorithmManager(object):
 
@@ -21,6 +21,62 @@ class AlgorithmManager(object):
     '''
     def __init__(self,dataManager):
         self.dataManager = dataManager
+
+    '''
+        Graph -
+            Each node is a different method
+            Each edge is a sequence of method->method by timestamp
+            Add 1 for weight when the same tuple of methods are called
+    '''
+    def displayGraph(self):
+
+        data = self.dataManager.loadData(["QueryName","TimeStamp"],transformFields=False)
+
+        data.is_copy = False
+        data.sort_values(["TimeStamp"], inplace=True) # Sort by "TimeStamp"
+                
+        G=nx.DiGraph()
+
+        for i in range(len(data)-1):
+            fromQuery = data["QueryName"].values[i];
+            toQuery = data["QueryName"].values[i+1];
+            try:
+                G[fromQuery][toQuery]['weight']=G[fromQuery][toQuery]['weight']+1;
+            except:
+                G.add_edge(fromQuery,toQuery,weight=1)
+
+        elarge=[(u,v) for (u,v,d) in G.edges(data=True) if d['weight'] >10000]
+        esmall=[(u,v) for (u,v,d) in G.edges(data=True) if d['weight'] <=10000]
+
+        pos=nx.circular_layout(G)
+        plt.figure(figsize=(20,20))
+
+        # nodes
+        nx.draw_networkx_nodes(G,pos,
+                               node_size=[v * 10 for v in nx.degree(G).values()]
+                               ,alpha=0.5)
+
+        # edges
+        nx.draw_networkx_edges(G,pos,edgelist=elarge,
+                                width=1)
+        # nx.draw_networkx_edges(G,pos,edgelist=esmall,
+        #                width=1,alpha=0.1,edge_color='b',style='dashed')
+
+        # weights
+        #weights = nx.get_edge_attributes(G,'weight')
+        #nx.draw_networkx_edge_labels(G,pos,edge_labels=weights)
+
+        labels = {}    
+        for edge in elarge:
+            labels[edge[0]] = edge[0]
+            labels[edge[1]] = edge[1]
+
+        # Labels for the nodes in eLarge
+        nx.draw_networkx_labels(G,pos,labels,font_size=12,font_color='b')
+        
+        #plt.savefig("D:\weighted_graph_noconnection.png")
+
+        plt.show()
 
     '''
         Displays the count of IsFirst for each QueryName divided by the number of IsFirst in the dataset
@@ -41,6 +97,19 @@ class AlgorithmManager(object):
          )
         result.plot(kind='bar')
         plt.show()     
+
+
+    '''
+        Display Sessions and queries
+    ''' 
+    def displaySidAndQueryName(self):
+        data = self.dataManager.loadData(["Aid","Sid","QueryName"],transformFields=False)        
+        
+        # Specific Aid
+        dataAid = data[data.Aid == "012abc55-5801-494f-a77f-a799f1d855de"]
+        colors = cm.gist_ncar(np.linspace(0,1,dataAid.QueryName.nunique()))
+        pd.crosstab(dataAid.Sid, dataAid.QueryName).plot.barh(stacked=True, color=colors,figsize=(20, 20))
+        plt.show()
 
     '''
         Find Aid with many sessions
@@ -70,13 +139,11 @@ class AlgorithmManager(object):
         plt.savefig('GroupByAidCountSidForAll.png')
         plt.show()
           
-
     '''
         Runs recurrent neural network based on the paper: http://arxiv.org/pdf/1511.06939v4.pdf
     ''' 
-    
     def runGRU4Rec(self):   
-    
+        import gru4rec
         session_key = "Sid" #"Aid" # Or Sid
         time_key = "TimeStamp"
         item_key = "QueryName"
@@ -98,7 +165,7 @@ class AlgorithmManager(object):
                     res = gru.evaluate_sessions_batch(test, cut_off=2, batch_size=batch_size, 
                                                 session_key=session_key, item_key=item_key, time_key=time_key)
                     print('Recall@2: {}'.format(res[0]))
-                    #print('MRR@2: {}'.format(res[1]))
+                    print('MRR@2: {}'.format(res[1]))
 
     '''
         Runs recurrent neural network based on the paper: http://arxiv.org/pdf/1511.06939v4.pdf
@@ -127,6 +194,7 @@ class AlgorithmManager(object):
     ''' 
     def runGRU4RecForSpecificAid(self):   
     
+        import gru4rec
         session_key = "Sid" #"Aid" # Or Sid
         time_key = "TimeStamp"
         item_key = "QueryName"
@@ -190,7 +258,7 @@ class AlgorithmManager(object):
         fid.write(str(avgVec))
 
         for n_clusters in range(2,25):
-            print "Running KMeans on {0} Clusters".format(n_clusters)          
+            print "Running KMeans on {0} Clusters".format(n_clusters)
             # Initialize the clusterer with n_clusters value, 15 runs of the algorithm and a random generator
             clusterer = KMeans(n_clusters=n_clusters, n_init=300, init='k-means++', max_iter = 1000)
             cluster_labels = clusterer.fit_predict(data)
@@ -218,16 +286,16 @@ class AlgorithmManager(object):
             
             fid.write("\n\n")
             
-            #fid.write("For {0} clusters the average silhouette score is : {1}".format(n_clusters, silhouette_avg))            
+            #fid.write("For {0} clusters the average silhouette score is : {1}".format(n_clusters, silhouette_avg))
 
     def runHierarchicalClustering(self,file,pivot='Aid',normalize=False,factor=100):        
         print 'Running hierarchical clustering'
-       
+
         # Preparing the data : loading, normalizing (if selected) and selecting 100k record randomly.
         data = self.loadOperationsByOneOfK(False, pivot, normalize, factor)
         np.random.shuffle(data)
         data = data[1:10000,:] # The clustering is slow, so attempting on 10k random samples.
-        
+
         # Preparing the data to compare, creating an average vector of the pivots.        
         if file != False:
             avgVec = np.mean(data,axis = 0)       
@@ -260,7 +328,7 @@ class AlgorithmManager(object):
             ward = hc(n_clusters, linkage='ward').fit(data)
             elapsed_time = clock() - st
             label = ward.labels_
-          
+
             for i in range(n_clusters):
                 cluster_i_size = 0
                 for val in label:
@@ -270,7 +338,7 @@ class AlgorithmManager(object):
                     fid.write("\nThe size of cluster {0} is {1}".format(i,cluster_i_size))
                 else
                     print("\nThe size of cluster {0} is {1}".format(i,cluster_i_size))
-            
+
             if file != False:
                 #fid.write("\nThe inertia is {0}\n\n".format(clusterer.inertia_))
                 fid.write("\n")           
