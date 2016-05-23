@@ -209,3 +209,6 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+/attempt1.out
+*.txt
+/GroupByAidCountSidForAll.png
