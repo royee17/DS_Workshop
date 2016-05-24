@@ -14,7 +14,7 @@ nadavfile = "attempt2.txt"
 dataManager = DataManager(liorDir)
 algorithmManager = AlgorithmManager(dataManager)
 #algorithmManager.runHierarchicalClustering(file="HierarchicalClusteringAttempt1.txt", normalize = False)
-algorithmManager.runHierarchicalClustering(file=False, normalize = False)
+algorithmManager.runHierarchicalClustering(pivot='Sid', file=False, normalize = False)
 
 '''
     Trying to recover the ndarray

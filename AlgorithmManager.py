@@ -10,7 +10,7 @@ import matplotlib.cm as cm
 import numpy as np
 import pandas as pd
 import baselines
-import networkx as nx
+#import networkx as nx
 
 class AlgorithmManager(object):
 
@@ -303,7 +303,7 @@ class AlgorithmManager(object):
             np.set_printoptions(precision=3,suppress = True) # Prettier printing.
             fid.write(str(avgVec))
 
-        for n_clusters in range(2,25):  
+        for n_clusters in range(2,3):  
             # Compute clustering           
             print("Running hierarchical clustering for {0} clusters".format(n_clusters))
             st = clock()
@@ -383,7 +383,7 @@ class AlgorithmManager(object):
             
             # Status print every 100,000 iterations
             t2 = clock()
-            if (i%100000 == 0 and i!=0):
+            if (i%500000 == 0 and i!=0):
                 print('Processed {0} rows in {1} seconds'.format(i, t2-t1))
 
             i = i + 1  
