@@ -1,14 +1,16 @@
 ﻿import warnings
 warnings.filterwarnings('ignore', 'numpy not_equal will not check object identity in the future')
 from sklearn.cluster import KMeans
+#from sklearn.cluster import AgglomerativeClustering as hc
 from sklearn.metrics import silhouette_samples, silhouette_score
 from time import clock
 import matplotlib.pyplot as plt
+from scipy.cluster.hierarchy import dendrogram, linkage
 import matplotlib.cm as cm
 import numpy as np
 import pandas as pd
 import baselines
-import networkx as nx
+#import networkx as nx
 
 class AlgorithmManager(object):
 
@@ -19,7 +21,7 @@ class AlgorithmManager(object):
     '''
     def __init__(self,dataManager):
         self.dataManager = dataManager
-    
+
     '''
         Graph -
             Each node is a different method
@@ -266,19 +268,8 @@ class AlgorithmManager(object):
 
         for n_clusters in range(2,25):
             print "Running KMeans on {0} Clusters".format(n_clusters)
-            '''
-            # Create a subplot with 1 row and 2 columns
-            fig, (ax1, ax2) = plt.subplots(1, 2)
-            fig.set_size_inches(18, 7)
-
-            # The 1st subplot is the silhouette plot
-            ax1.set_xlim([-1, 1])
-            # The (n_clusters+1)*10 is for inserting blank space between silhouette
-            # plots of individual clusters, to demarcate them clearly.
-            ax1.set_ylim([0, len(data) + (n_clusters + 1) * 10])
-            '''
             # Initialize the clusterer with n_clusters value, 15 runs of the algorithm and a random generator
-            clusterer = KMeans(n_clusters=n_clusters, n_init=30, init='k-means++', max_iter = 1000)
+            clusterer = KMeans(n_clusters=n_clusters, n_init=300, init='k-means++', max_iter = 1000)
             cluster_labels = clusterer.fit_predict(data)
 
             # The silhouette_score gives the average value for all the samples.
@@ -305,66 +296,64 @@ class AlgorithmManager(object):
             fid.write("\n\n")
             
             #fid.write("For {0} clusters the average silhouette score is : {1}".format(n_clusters, silhouette_avg))
+
+    def runHierarchicalClustering(self,file,pivot='Aid',normalize=False,factor=100):        
+        print 'Running hierarchical clustering'
+
+        # Preparing the data : loading, normalizing (if selected) and selecting 100k record randomly.
+        data = self.loadOperationsByOneOfK(False, pivot, normalize, factor)
+        np.random.shuffle(data)
+        data = data[1:10000,:] # The clustering is slow, so attempting on 10k random samples.
+
+        # Preparing the data to compare, creating an average vector of the pivots.        
+        if file != False:
+            avgVec = np.mean(data,axis = 0)       
+            fid = open(file, 'w')
+            np.set_printoptions(precision=3,suppress = True) # Prettier printing.
+            fid.write(str(avgVec))
+
+        for n_clusters in range(2,3):  
+            # Compute clustering           
+            print("Running hierarchical clustering for {0} clusters".format(n_clusters))
+            st = clock()
+            ward = linkage(data, 'average', metric = 'cosine')
+
+            # calculate the dendrogram
+            plt.figure(figsize=(25, 10))
+            plt.title('Hierarchical Clustering Dendrogram')
+            plt.xlabel('sample index')
+            plt.ylabel('distance')
+            dendrogram(
+                ward,
+                leaf_rotation=90.,  # rotates the x axis labels
+                leaf_font_size=8.,  # font size for the x axis labels
+                truncate_mode='lastp',  # show only the last p merged clusters
+                p=100,  # show only the last p merged clusters
+                show_leaf_counts=True,  # False = numbers in brackets are counts               
+                show_contracted=True,  # to get a distribution impression in truncated branches
+            )
+            plt.savefig("plot{0}{1}.png".format(pivot,n_clusters))
             '''
-            # Compute the silhouette scores for each sample
-            sample_silhouette_values = silhouette_samples(data, cluster_labels)
+            ward = hc(n_clusters, linkage='ward').fit(data)
+            elapsed_time = clock() - st
+            label = ward.labels_
 
-            y_lower = 10
             for i in range(n_clusters):
-                # Aggregate the silhouette scores for samples belonging to cluster i, and sort them
-                ith_cluster_silhouette_values = \
-                    sample_silhouette_values[cluster_labels == i]
+                cluster_i_size = 0
+                for val in label:
+                    if val == i:
+                        cluster_i_size = cluster_i_size + 1
+                if file != False:               
+                    fid.write("\nThe size of cluster {0} is {1}".format(i,cluster_i_size))
+                else
+                    print("\nThe size of cluster {0} is {1}".format(i,cluster_i_size))
 
-                ith_cluster_silhouette_values.sort()
+            if file != False:
+                #fid.write("\nThe inertia is {0}\n\n".format(clusterer.inertia_))
+                fid.write("\n")           
+                fid.write("\n\n")
+            '''
 
-                size_cluster_i = ith_cluster_silhouette_values.shape[0]
-                y_upper = y_lower + size_cluster_i
-
-                color = cm.spectral(float(i) / n_clusters)
-                ax1.fill_betweenx(np.arange(y_lower, y_upper),
-                                  0, ith_cluster_silhouette_values,
-                                  facecolor=color, edgecolor=color, alpha=0.7)
-
-                # Label the silhouette plots with their cluster numbers at the middle
-                ax1.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
-
-                # Compute the new y_lower for next plot
-                y_lower = y_upper + 10  # 10 for the 0 samples
-
-            ax1.set_title("The silhouette plot for the various clusters.")
-            ax1.set_xlabel("The silhouette coefficient values")
-            ax1.set_ylabel("Cluster label")
-
-            # The vertical line for average silhoutte score of all the values
-            ax1.axvline(x=silhouette_avg, color="red", linestyle="--")
-
-            ax1.set_yticks([])  # Clear the yaxis labels / ticks
-            ax1.set_xticks([-0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
-
-            # 2nd Plot showing the actual clusters formed
-            colors = cm.spectral(cluster_labels.astype(float) / n_clusters)
-            ax2.scatter(data[:, 0], data[:, 1], marker='.', s=30, lw=0, alpha=0.7,
-                        c=colors)
-
-            # Labeling the clusters
-            centers = clusterer.cluster_centers_
-            # Draw white circles at cluster centers
-            ax2.scatter(centers[:, 0], centers[:, 1],
-                        marker='o', c="white", alpha=1, s=200)
-
-            for i, c in enumerate(centers):
-                ax2.scatter(c[0], c[1], marker='$%d$' % i, alpha=1, s=50)
-
-            ax2.set_title("The visualization of the clustered data.")
-            ax2.set_xlabel("Feature space for the 1st feature")
-            ax2.set_ylabel("Feature space for the 2nd feature")
-            
-            plt.suptitle(("Silhouette analysis for KMeans clustering on sample data "
-                          "with n_clusters = %d" % n_clusters),
-                         fontsize=14, fontweight='bold')
-
-            plt.show()'''
-            
     '''
         Utility function for clustering.
 
@@ -403,7 +392,7 @@ class AlgorithmManager(object):
             
             # Status print every 100,000 iterations
             t2 = clock()
-            if (i%100000 == 0 and i!=0):
+            if (i%500000 == 0 and i!=0):
                 print('Processed {0} rows in {1} seconds'.format(i, t2-t1))
 
             i = i + 1  

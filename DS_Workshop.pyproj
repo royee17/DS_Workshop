@@ -40,18 +40,6 @@
     <Content Include="Plots\GroupByAidCountSidForAll.png" />
     <Content Include="Plots\GroupByAidCountSidForDay1.png" />
     <Content Include="Plots\QueryIsFirstAllDays.png" />
-    <Content Include="Plots\weighted_graph_above10000.png" />
-    <Content Include="Plots\weighted_graph_above20000.png" />
-    <Content Include="Plots\weighted_graph_above30000.png" />
-    <Content Include="Plots\weighted_graph_above40000.png" />
-    <Content Include="Plots\weighted_graph_above5000.png" />
-    <Content Include="Plots\weighted_graph_above50000.png" />
-    <Content Include="Plots\weighted_graph_above5000_withOther.png" />
-    <Content Include="Plots\weighted_graph_below1.png" />
-    <Content Include="Plots\weighted_graph_below100.png" />
-    <Content Include="Plots\weighted_graph_below5.png" />
-    <Content Include="Plots\weighted_graph_below500.png" />
-    <Content Include="Plots\weighted_graph_noconnection.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Plots\" />
