@@ -39,6 +39,19 @@
     <Content Include="Gru4Rec_Results.xlsx" />
     <Content Include="Plots\GroupByAidCountSidForAll.png" />
     <Content Include="Plots\GroupByAidCountSidForDay1.png" />
+    <Content Include="Plots\plotAid10.png" />
+    <Content Include="Plots\plotAid11.png" />
+    <Content Include="Plots\plotAid12.png" />
+    <Content Include="Plots\plotAid13.png" />
+    <Content Include="Plots\plotAid2.png" />
+    <Content Include="Plots\plotAid3.png" />
+    <Content Include="Plots\plotAid4.png" />
+    <Content Include="Plots\plotAid5.png" />
+    <Content Include="Plots\plotAid6.png" />
+    <Content Include="Plots\plotAid7.png" />
+    <Content Include="Plots\plotAid8.png" />
+    <Content Include="Plots\plotAid9.png" />
+    <Content Include="Plots\plotSid2.png" />
     <Content Include="Plots\QueryIsFirstAllDays.png" />
   </ItemGroup>
   <ItemGroup>
