@@ -190,7 +190,7 @@ class AlgorithmManager(object):
 
 
     ''' 
-    def runGRU4RecForSpecificAid(self):   
+    def runGRU4RecForSpecificAid(self,numOfAids=10):   
     
         import gru4rec
         session_key = "Sid" #"Aid" # Or Sid
@@ -199,44 +199,53 @@ class AlgorithmManager(object):
 
         data = self.dataManager.loadData([time_key,item_key,"Aid","Sid"]) 
 
-        # Select a specific Aid
-        selectedAid = "21674def-1c93-46e5-95ab-015e904fb10f";
-        encodedVal = self.dataManager.getEncodedByLabel(data,"Aid",selectedAid);
-        print(str(encodedVal))    
-        data = data.loc[data['Aid'] == encodedVal]
+        result = data.groupby('Aid').apply(
+             lambda group: (group.Sid.nunique())
+         )
 
-        train, test = self.dataManager.splitData(data,isRandom=False)
-        print('Training GRU4Rec')    
+        result.sort_values(inplace=True,ascending=False)
+        
+        for selectedAid in result.keys()[2:(numOfAids+2)]:
+            idx = self.dataManager.fields.index("Aid");
+            ret = self.dataManager.mcle.all_encoders_[idx].inverse_transform(selectedAid);
+            print(str(ret))    
+            aidData = data.loc[data['Aid'] == selectedAid]
+
+            train, test = self.dataManager.splitData(aidData,isRandom=False)
+
+            print('Training GRU4Rec')    
             
-        batch_size = 5
-        momentum = 0.4
-        dropOut = 0.5
+            batch_size = 5
+            momentum = 0.4
+            dropOut = 0.5
 
-        print('Batch Size: ' + str(batch_size) + ' Dropout: ' + str(float(dropOut)) + ' Momentum: ' + str(float(momentum)))
-        gru = gru4rec.GRU4Rec(layers=[1000], loss='top1', batch_size=batch_size, dropout_p_hidden=float(dropOut), learning_rate=0.05, momentum=float(momentum)
-                                ,n_epochs=10,hidden_act = 'tanh', final_act='tanh'
-                                ,session_key=session_key, item_key=item_key, time_key=time_key)
-        gru.fit(train)
+            print('Batch Size: ' + str(batch_size) + ' Dropout: ' + str(float(dropOut)) + ' Momentum: ' + str(float(momentum)))
+            gru = gru4rec.GRU4Rec(layers=[1000], loss='top1', batch_size=batch_size, dropout_p_hidden=float(dropOut), learning_rate=0.05, momentum=float(momentum)
+                                    ,n_epochs=10,hidden_act = 'tanh', final_act='tanh'
+                                    ,session_key=session_key, item_key=item_key, time_key=time_key)
+            gru.fit(train)
                             
-        test.is_copy = False
-        test.sort_values([time_key,session_key], inplace=True) # Sort by time_key first and then by session_key
+            test.is_copy = False
+            test.sort_values([time_key,session_key], inplace=True) # Sort by time_key first and then by session_key
  
-        correct = 0;
-        for i in range(len(test)-batch_size-1):
-            # Goes from 1 to len(test) and gets the batches - for example: [1-5],[2-6],[3-6]
-            curSessions = test[session_key].values[range(i,i+batch_size)] 
-            curItems = test[item_key].values[range(i,i+batch_size)]
+            correct = 0;
+            for i in range(len(test)-batch_size-1):
+                # Goes from 1 to len(test) and gets the batches - for example: [1-5],[2-6],[3-6]
+                curSessions = test[session_key].values[range(i,i+batch_size)] 
+                curItems = test[item_key].values[range(i,i+batch_size)]
 
-            # Predicts the next batch (if we give [1-5] it predicts [6-10])
-            preds = gru.predict_next_batch(curSessions, curItems, None, batch_size)
+                # Predicts the next batch (if we give [1-5] it predicts [6-10])
+                preds = gru.predict_next_batch(curSessions, curItems, None, batch_size)
 
-            # Take only the first element from the next batch and compare it (for example: predict([1-5]) returns [6-10] and we check if predict[6]==test[6])
-            if(preds[0].idxmax() == test[item_key].values[i+batch_size+1]):
-                print(str(i+batch_size+1) + " " + str(preds[0].idxmax()))
-                correct = correct+1;
+                # Take only the first element from the next batch and compare it (for example: predict([1-5]) returns [6-10] and we check if predict[6]==test[6])
+                if(preds[0].idxmax() == test[item_key].values[i+batch_size+1]):
+                    print(str(i+batch_size+1) + " " + str(preds[0].idxmax()))
+                    correct = correct+1;
+                    
        
-        print('Correct: {}'.format(correct))
-        print('Accuracy: {}'.format(float(correct)/float(len(test)-batch_size-1)))
+            print('Correct: {}'.format(correct))
+            if(len(test)-batch_size-1 > 0):
+                print('Accuracy: {}'.format(float(correct)/float(len(test)-batch_size-1)))
 
     '''
         Runs K means on the Dataset

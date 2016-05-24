@@ -11,6 +11,7 @@ from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
 import numpy as np
 import pandas as pd
 from collections import OrderedDict
+import math
 srng = RandomStreams()
 class GRU4Rec:
     '''
@@ -400,8 +401,9 @@ class GRU4Rec:
             preds = np.asarray(self.predict(in_idxs, iIdxs)).T
             return pd.DataFrame(data=preds, index=predict_for_item_ids)
         else:
-            preds = np.asarray(self.predict(in_idxs)).T
-            return pd.DataFrame(data=preds, index=self.itemidmap.index)
+            if(not math.isnan(in_idxs.values[4])):
+                preds = np.asarray(self.predict(in_idxs)).T
+                return pd.DataFrame(data=preds, index=self.itemidmap.index)
     
     def evaluate_sessions_batch(self, test_data, items=None, cut_off=20, batch_size=100, break_ties=False, session_key='SessionId', item_key='ItemId', time_key='Time'):
         '''
