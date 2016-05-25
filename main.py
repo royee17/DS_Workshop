@@ -34,15 +34,15 @@ print(vects[1:10])
 #algorithmManager.runKMeans(pivot = 'Aid', file="AidcentersNoSil1.txt", normalize = False)
 #algorithmManager.runKMeans(pivot = 'Aid', file="AidcentersNoSil2.txt", normalize = True)
 #algorithmManager.runKMeans(pivot = 'Sid', file="SidcentersNoSil3.txt", normalize = False)
-algorithmManager.runKMeans(pivot = 'Sid', file="SidcentersAfterPCA1.txt", normalize = False,n_components=5)
+#algorithmManager.runKMeans(pivot = 'Sid', file="SidcentersAfterPCA1.txt", normalize = False,n_components=5)
 
 #algorithmManager.displayAidBySid()
 #algorithmManager.displayCountByQueryName()
 #algorithmManager.displaySidAndQueryName();
-#algorithmManager.displayGraph()
+algorithmManager.displayGraph()
 #algorithmManager.runKMeans()
 
-algorithmManager.runGRU4RecForSpecificAid()
+#algorithmManager.runGRU4RecForSpecificAid()
 
 
 

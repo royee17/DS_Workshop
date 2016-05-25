@@ -11,7 +11,9 @@ import matplotlib.cm as cm
 import numpy as np
 import pandas as pd
 import baselines
-#import networkx as nx
+import networkx as nx
+from matplotlib import colors
+from random import randint
 
 class AlgorithmManager(object):
 
@@ -31,22 +33,28 @@ class AlgorithmManager(object):
     '''
     def displayGraph(self):
 
-        data = self.dataManager.loadData(["QueryName","TimeStamp"],transformFields=False)
-
+        data = self.dataManager.loadData(["QueryName","TimeStamp","Sid","Aid"],transformFields=False)
+        
+        data = data[data.Aid == "012abc55-5801-494f-a77f-a799f1d855de"]
         data.is_copy = False
         data.sort_values(["TimeStamp"], inplace=True) # Sort by "TimeStamp"
                 
         G=nx.DiGraph()
-
+        lastSid = 0;
+        colors_list = "bgrcmyk";#["red","black","yellow","blue"];
+        curColor = "red";
         for i in range(len(data)-1):
             fromQuery = data["QueryName"].values[i];
             toQuery = data["QueryName"].values[i+1];
+            if(data["Sid"].values[i] != lastSid):
+                lastSid = data["Sid"].values[i];
+                curColor = colors_list[randint(0,len(colors_list)-1)]
             try:
                 G[fromQuery][toQuery]['weight']=G[fromQuery][toQuery]['weight']+1;
             except:
-                G.add_edge(fromQuery,toQuery,weight=1)
+                G.add_edge(fromQuery,toQuery,weight=1,color=curColor)
 
-        elarge=[(u,v) for (u,v,d) in G.edges(data=True) if d['weight'] >10000]
+        #elarge=[(u,v) for (u,v,d) in G.edges(data=True) if d['weight'] >0]
         esmall=[(u,v) for (u,v,d) in G.edges(data=True) if d['weight'] <=10000]
 
         pos=nx.circular_layout(G)
@@ -58,17 +66,19 @@ class AlgorithmManager(object):
                                ,alpha=0.5)
 
         # edges
-        nx.draw_networkx_edges(G,pos,edgelist=elarge,
-                                width=1)
-        # nx.draw_networkx_edges(G,pos,edgelist=esmall,
-        #                width=1,alpha=0.1,edge_color='b',style='dashed')
+
+       # nx.draw_networkx_edges(G,pos,edgelist=elarge,
+       #                         width=1)
+
+        nx.draw_networkx_edges(G,pos,edgelist=esmall,
+                        width=1,alpha=0.1,edge_color='b',style='dashed')
 
         # weights
         #weights = nx.get_edge_attributes(G,'weight')
         #nx.draw_networkx_edge_labels(G,pos,edge_labels=weights)
 
         labels = {}    
-        for edge in elarge:
+        for edge in esmall:
             labels[edge[0]] = edge[0]
             labels[edge[1]] = edge[1]
 

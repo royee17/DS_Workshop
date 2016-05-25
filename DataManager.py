@@ -192,8 +192,10 @@ class DataManager(object):
         Params:
             fields (not required): Column names that we want to read
             transformFields (not required): Transforms the String fields into int
+            onlyFirstFile (not required): Only loads the first file
+            removeFirstK (not required): Removes the first users with highest number of Sids
     '''
-    def loadData(self,fields=False,transformFields=True,onlyFirstFile=False):
+    def loadData(self,fields=False,transformFields=True,onlyFirstFile=False,removeFirstK=0):
 
         self.fields = fields;
         if(not self.fields):
@@ -209,7 +211,18 @@ class DataManager(object):
                     break;                
         # Concat the list of the dataframes
         df = pd.concat(ajax_events_list)
+                
+        if(removeFirstK > 0 and 'Aid' in self.fields):            
+            result = df.groupby('Aid').apply(
+                 lambda group: (group.Sid.nunique())
+             )
+
+            result.sort_values(inplace=True,ascending=False)
         
+            for selectedAid in result.keys()[0:removeFirstK]:
+                print(str(selectedAid))    
+                df = df.loc[df['Aid'] != selectedAid]
+
         if(transformFields):                                             
             # Transform all the string columns into integers
             self.mcle = MultiColumnLabelEncoder(columns=self.fields)
@@ -221,6 +234,7 @@ class DataManager(object):
 
         print("The data has been loaded")
        
+
         return res
 
     '''
