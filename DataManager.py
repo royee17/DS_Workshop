@@ -140,11 +140,7 @@ class MultiColumnLabelEncoder(LabelEncoder):
                 dframe.loc[:, column] = self.all_encoders_[idx]\
                     .inverse_transform(dframe.loc[:, column].values)
         return dframe
-    '''
-    def oneOfK(dframe):
-    dframe.queryName.nunique()
-    dframe = DataManager.loadData(
-    '''
+    
 class DataManager(object):
     
     '''

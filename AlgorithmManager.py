@@ -1,6 +1,7 @@
 ﻿import warnings
 warnings.filterwarnings('ignore', 'numpy not_equal will not check object identity in the future')
 from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
 #from sklearn.cluster import AgglomerativeClustering as hc
 from sklearn.metrics import silhouette_samples, silhouette_score
 from time import clock
@@ -240,22 +241,45 @@ class AlgorithmManager(object):
         print('Correct: {}'.format(correct))
         print('Accuracy: {}'.format(float(correct)/float(len(test)-batch_size-1)))
 
+    def runPCA(self,data, n_components='mle', plot=False):
+        pca = PCA(n_components, copy=True)
+        # Plot the PCA spectrum
+        print "Running PCA"
+        startTime = clock()
+        new_data = pca.fit_transform(data)
+        print "finished running after {0} secs".format(clock()-startTime)
+        if plot!=False:
+            plt.figure(1, figsize=(4, 3))
+            plt.clf()
+            plt.axes([.2, .2, .7, .7])
+            plt.plot(pca.explained_variance_, linewidth=2)
+            plt.axis('tight')
+            plt.xlabel('n_components')
+            plt.ylabel('explained_variance_')
+        return new_data
     '''
         Runs K means on the Dataset
         Goes over K=2:5 and checks the performance using slihouette
     '''
-    def runKMeans(self, pivot, file = False, normalize = False, factor = 100):
+    def runKMeans(self, pivot, file = False, normalize = False, factor = 100, n_components=False):
         
         # Preparing the data : loading, normalizing (if selected) and selecting 100k record randomly.
         data = self.loadOperationsByOneOfK(False, pivot, normalize, factor)
         np.random.shuffle(data)
         #data = data[1:50000,:] # Higher amount of vectors cause memory error on silhouette_score
-        
+
         # Preparing the data to compare, creating an average vector of the pivots.
-        avgVec = np.mean(data,axis = 0)        
-        fid = open(file, 'w')
-        np.set_printoptions(precision=3,suppress = True) # Prettier printing.
-        fid.write(str(avgVec))
+        if file!= False:
+            avgVec = np.mean(data,axis = 0)        
+            fid = open(file, 'w')
+            np.set_printoptions(precision=3,suppress = True) # Prettier printing.
+            fid.write(str(avgVec))
+
+        if n_components != False:
+            data = self.runPCA(data,n_components)
+
+        
+        
 
         for n_clusters in range(2,25):
             print "Running KMeans on {0} Clusters".format(n_clusters)
@@ -288,7 +312,11 @@ class AlgorithmManager(object):
             
             #fid.write("For {0} clusters the average silhouette score is : {1}".format(n_clusters, silhouette_avg))
 
-    def runHierarchicalClustering(self,file,pivot='Aid',normalize=False,factor=100):        
+    '''
+        Runs Hirarchical Clustering on the Dataset,
+        Creating a Dendrogram visualizing the clustering process for further analysis.
+    '''
+    def runHierarchicalClustering(self,file,n_clusters=2, pivot='Aid',normalize=False,factor=100, n_components=False):        
         print 'Running hierarchical clustering'
 
         # Preparing the data : loading, normalizing (if selected) and selecting 100k record randomly.
@@ -303,47 +331,31 @@ class AlgorithmManager(object):
             np.set_printoptions(precision=3,suppress = True) # Prettier printing.
             fid.write(str(avgVec))
 
-        for n_clusters in range(2,3):  
-            # Compute clustering           
-            print("Running hierarchical clustering for {0} clusters".format(n_clusters))
-            st = clock()
-            ward = linkage(data, 'average', metric = 'cosine')
-
-            # calculate the dendrogram
-            plt.figure(figsize=(25, 10))
-            plt.title('Hierarchical Clustering Dendrogram')
-            plt.xlabel('sample index')
-            plt.ylabel('distance')
-            dendrogram(
-                ward,
-                leaf_rotation=90.,  # rotates the x axis labels
-                leaf_font_size=8.,  # font size for the x axis labels
-                truncate_mode='lastp',  # show only the last p merged clusters
-                p=100,  # show only the last p merged clusters
-                show_leaf_counts=True,  # False = numbers in brackets are counts               
-                show_contracted=True,  # to get a distribution impression in truncated branches
-            )
-            plt.savefig("plot{0}{1}.png".format(pivot,n_clusters))
-            '''
-            ward = hc(n_clusters, linkage='ward').fit(data)
-            elapsed_time = clock() - st
-            label = ward.labels_
-
-            for i in range(n_clusters):
-                cluster_i_size = 0
-                for val in label:
-                    if val == i:
-                        cluster_i_size = cluster_i_size + 1
-                if file != False:               
-                    fid.write("\nThe size of cluster {0} is {1}".format(i,cluster_i_size))
-                else
-                    print("\nThe size of cluster {0} is {1}".format(i,cluster_i_size))
-
-            if file != False:
-                #fid.write("\nThe inertia is {0}\n\n".format(clusterer.inertia_))
-                fid.write("\n")           
-                fid.write("\n\n")
-            '''
+        if n_components != False:
+            data = self.runPCA(data,n_components)
+         
+        # Compute clustering           
+        print("Running hierarchical clustering for {0} clusters".format(n_clusters))
+        startTime = clock()
+        ward = linkage(data, 'average', metric = 'cosine')
+        print("finished running after {0} secs".format(clock()-startTime))
+        # calculate the dendrogram
+        plt.figure(figsize=(25, 10))
+        plt.title('Hierarchical Clustering Dendrogram')
+        plt.xlabel('sample index')
+        plt.ylabel('distance')
+        dendrogram(
+            ward,
+            leaf_rotation=90.,  # rotates the x axis labels
+            leaf_font_size=8.,  # font size for the x axis labels
+            truncate_mode='lastp',  # show only the last p merged clusters
+            p=100,  # show only the last p merged clusters
+            show_leaf_counts=True,  # False = numbers in brackets are counts               
+            show_contracted=True,  # to get a distribution impression in truncated branches
+            count_sort = 'descendent',
+            distance_sort = False
+        )
+        plt.savefig("plot{0}{1}attempt.png".format(pivot,n_clusters))        
 
     '''
         Utility function for clustering.
