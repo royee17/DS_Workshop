@@ -42,7 +42,7 @@ algorithmManager.runKMeans(pivot = 'Sid', file="SidcentersAfterPCA1.txt", normal
 #algorithmManager.displayGraph()
 #algorithmManager.runKMeans()
 
-#algorithmManager.runGRU4RecForSpecificAid()
+algorithmManager.runGRU4RecForSpecificAid()
 
 
 

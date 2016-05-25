@@ -193,7 +193,7 @@ class DataManager(object):
             fields (not required): Column names that we want to read
             transformFields (not required): Transforms the String fields into int
     '''
-    def loadData(self,fields=False,transformFields=True):
+    def loadData(self,fields=False,transformFields=True,onlyFirstFile=False):
 
         self.fields = fields;
         if(not self.fields):
@@ -204,7 +204,9 @@ class DataManager(object):
             for dir in dirs:
                 # Load the csv and append to a list
                 print('reading the ajax file in {0}'.format(dir))
-                ajax_events_list.append(pd.read_csv(os.path.join(self.rootdir,dir,'ajax_events.csv'),usecols=self.fields))                
+                ajax_events_list.append(pd.read_csv(os.path.join(self.rootdir,dir,'ajax_events.csv'),usecols=self.fields))
+                if(onlyFirstFile):
+                    break;                
         # Concat the list of the dataframes
         df = pd.concat(ajax_events_list)
         
