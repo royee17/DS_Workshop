@@ -109,6 +109,92 @@ class AlgorithmManager(object):
         result.plot(kind='bar')
         plt.show()     
 
+    '''
+        Session duration for users that visited the site more then 3 times is significantly higher than those who visited 3 times or less
+    '''
+    def displayAvgTimeSessions(self):
+        data = dataManager.loadData(["QueryName","TimeStamp","Sid","Aid"],transformFields=False)
+
+        # Get the timestamp difference
+        def get_stats(group):
+            return (pd.to_datetime(group['TimeStamp'])-pd.to_datetime(group['TimeStamp']).shift()).fillna(0).sum() / np.timedelta64(1, 's');
+
+        result = data.groupby('Aid').apply(
+             lambda group: (group.Sid.nunique() <= 3) # 3 is the average
+         )
+        resultBelow = result[result == True]
+        resultAbove = result[result == False]
+
+        sumOfTimestampBelow3 = data[data.Aid.isin(resultBelow.index)].groupby('Sid').apply(get_stats)
+        sumOfTimestampAbove3 = data[data.Aid.isin(resultAbove.index)].groupby('Sid').apply(get_stats)
+
+        timeMeans = (sumOfTimestampBelow3.mean()/60,sumOfTimestampAbove3.mean()/60)
+        timeStd = (sumOfTimestampBelow3.std()/60,sumOfTimestampAbove3.std()/60)
+        ind = np.arange(2)  # the x locations for the groups
+        width = 0.35       # the width of the bars
+
+        fig, ax = plt.subplots()
+        rects1 = ax.bar(ind, timeMeans, width, color='b')
+
+        # add some text for labels, title and axes ticks
+        ax.set_ylabel('Average time of sessions (Minutes)')
+        ax.set_xticks(ind + 0.2)
+        ax.set_xticklabels(('Below average stay on site', 'Above average stay on site'))
+
+        plt.show()
+
+        # T-Test with unequal variance
+        stats.ttest_ind(sumOfTimestampBelow3, sumOfTimestampAbove3, equal_var=False)
+
+    def printDecisionTreeForBelow3(self):
+        from sklearn.ensemble import RandomForestClassifier
+        import pandas as pd
+        import numpy as np
+        from sklearn.cross_validation import train_test_split
+        data = self.dataManager.loadData(["QueryName","TimeStamp","Sid","Aid","Country","IsFirst","Browser","Os","Continent"],transformFields=True)
+
+
+        features = data.columns[1:4]
+        result = data.groupby('Aid').apply(
+            lambda group: (group.Sid.nunique()<=3)
+        )
+        below = result[result == True]
+        data['IsBelow'] = data['Aid'].isin(below.index)
+        y, _ = pd.factorize(data['IsBelow'])
+        X_train, X_test, y_train, y_test = train_test_split(data[features], y, test_size=0.33, random_state=42)
+        from sklearn.metrics import accuracy_score
+        from sklearn import svm
+        #clf = svm.SVC();
+        clf = RandomForestClassifier(n_jobs=2)
+        clf.fit(X_train, y_train)
+
+        y_pred = clf.predict(X_test)
+        accuracy_score(y_test, y_pred)
+        from sklearn import tree
+        i_tree = 0
+        for tree_in_forest in clf.estimators_:
+            with open('tree_' + str(i_tree) + '.dot', 'w') as my_file:
+                my_file = tree.export_graphviz(tree_in_forest, out_file = my_file)
+            i_tree = i_tree + 1
+
+    def genericBelowAverageDisplay(self,column):
+        data = dataManager.loadData(["Sid","Aid",column],transformFields=False)
+
+        result = data.groupby('Aid').apply(
+            lambda group: (group.Sid.nunique()<=1)
+        )
+        below = result[result == True]
+        belowData = data.loc[data['Aid'].isin(below.index)]
+
+        col = data.groupby([column]).apply(
+            lambda group: (group.Aid.nunique())
+        ).to_frame('Total')
+        col['Below'] = belowData.groupby([column]).apply(
+            lambda group: (group.Aid.nunique())
+        )
+        (col['Below']/col['Total']).plot(kind='bar')
+
+        plt.show()
 
     '''
         Display Sessions and queries
@@ -146,6 +232,8 @@ class AlgorithmManager(object):
         ax.set_xlabel("# of unique Sid for each Aid")
         ax.set_ylabel("Aid")
         ax.axvline(x=result.mean(),c="blue",linewidth=2,ls='dashed')  
+        ax.axvline(x=result.median(),c="red",linewidth=2,ls='dashed')  
+
         plt.xticks(np.arange(result.min(), result.max()+1, 5.0))
         plt.savefig('GroupByAidCountSidForAll.png')
         plt.show()

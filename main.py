@@ -1,7 +1,6 @@
 ﻿from AlgorithmManager import *
 from DataManager import *
 
-
 # Lior's Directory
 liorDir = "D:\DataScienceWorkshop"
 
@@ -11,7 +10,7 @@ royeeDir = ""
 # Nadav's Directory
 nadavfile = "attempt2.txt"
 
-dataManager = DataManager(liorDir)
+dataManager = DataManager( "D:\DataScienceWorkshop")
 algorithmManager = AlgorithmManager(dataManager)
 #algorithmManager.runHierarchicalClustering(file="HierarchicalClusteringAttempt1.txt", normalize = False,n_components=5)
 #algorithmManager.runHierarchicalClustering(pivot='Sid', file=False, normalize = False,n_components = 5)

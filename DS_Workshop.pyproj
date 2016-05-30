@@ -37,8 +37,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Gru4Rec_Results.xlsx" />
+    <Content Include="Plots\averagetimeofsessionsperuseraboveandbelow3.png" />
+    <Content Include="Plots\averagetimeofsessionsperuseraboveandbelowaverage.png" />
+    <Content Include="Plots\browserBelow3Percentage.png" />
+    <Content Include="Plots\browserBelow3vstotal.png" />
     <Content Include="Plots\GroupByAidCountSidForAll.png" />
     <Content Include="Plots\GroupByAidCountSidForDay1.png" />
+    <Content Include="Plots\lowestRequestsWithNames.png" />
     <Content Include="Plots\plotAid10.png" />
     <Content Include="Plots\plotAid11.png" />
     <Content Include="Plots\plotAid12.png" />
@@ -52,7 +57,23 @@
     <Content Include="Plots\plotAid8.png" />
     <Content Include="Plots\plotAid9.png" />
     <Content Include="Plots\plotSid2.png" />
+    <Content Include="Plots\QueryCOuntPerSessionOver20.png" />
+    <Content Include="Plots\QueryCOuntPerSessionOver30.png" />
+    <Content Include="Plots\QueryCOuntPerSessionOver40.png" />
+    <Content Include="Plots\QueryCOuntPerSessionOver50.png" />
+    <Content Include="Plots\QueryCOuntPerSessionOver60.png" />
     <Content Include="Plots\QueryIsFirstAllDays.png" />
+    <Content Include="Plots\QueryNameSizeOnSessionId_012abc55-5801-494f-a77f-a799f1d855de.png" />
+    <Content Include="Plots\tree_0.dot" />
+    <Content Include="Plots\tree_1.dot" />
+    <Content Include="Plots\tree_2.dot" />
+    <Content Include="Plots\tree_3.dot" />
+    <Content Include="Plots\tree_4.dot" />
+    <Content Include="Plots\tree_5.dot" />
+    <Content Include="Plots\tree_6.dot" />
+    <Content Include="Plots\tree_7.dot" />
+    <Content Include="Plots\tree_8.dot" />
+    <Content Include="Plots\tree_9.dot" />
     <Content Include="Plots\weighted_graph_above10000.png" />
     <Content Include="Plots\weighted_graph_above20000.png" />
     <Content Include="Plots\weighted_graph_above30000.png" />
