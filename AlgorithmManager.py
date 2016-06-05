@@ -11,7 +11,7 @@ import matplotlib.cm as cm
 import numpy as np
 import pandas as pd
 import baselines
-import networkx as nx
+#import networkx as nx
 from matplotlib import colors
 from random import randint
 
@@ -348,14 +348,14 @@ class AlgorithmManager(object):
             if(len(test)-batch_size-1 > 0):
                 print('Accuracy: {}'.format(float(correct)/float(len(test)-batch_size-1)))
 
-    def runPCA(self,data, n_components='mle', plot=False):
+    def runPCA(self,data, n_components='mle', plot=False, pivot = 'Aid'):
         pca = PCA(n_components, copy=True)
         # Plot the PCA spectrum
         print "Running PCA"
         startTime = clock()
         new_data = pca.fit_transform(data)
         print "finished running after {0} secs".format(clock()-startTime)
-        if plot!=False:
+        if plot==True:
             plt.figure(1, figsize=(4, 3))
             plt.clf()
             plt.axes([.2, .2, .7, .7])
@@ -363,12 +363,12 @@ class AlgorithmManager(object):
             plt.axis('tight')
             plt.xlabel('n_components')
             plt.ylabel('explained_variance_')
+            plt.savefig("PCA{0}.png".format(pivot))
         return new_data
     '''
-        Runs K means on the Dataset
-        Goes over K=2:5 and checks the performance using slihouette
+        Runs K means on the Dataset        
     '''
-    def runKMeans(self, pivot, file = False, normalize = False, factor = 100, n_components=False):
+    def runKMeans(self, pivot, file = False, normalize = False, factor = 100, n_components=False, n_clusters = 5):
         
         # Preparing the data : loading, normalizing (if selected) and selecting 100k record randomly.
         data = self.loadOperationsByOneOfK(False, pivot, normalize, factor)
@@ -383,41 +383,39 @@ class AlgorithmManager(object):
             fid.write(str(avgVec))
 
         if n_components != False:
-            data = self.runPCA(data,n_components)
-
-        
+            data = self.runPCA(data,n_components)       
         
 
-        for n_clusters in range(2,25):
-            print "Running KMeans on {0} Clusters".format(n_clusters)
-            # Initialize the clusterer with n_clusters value, 15 runs of the algorithm and a random generator
-            clusterer = KMeans(n_clusters=n_clusters, n_init=300, init='k-means++', max_iter = 1000)
-            cluster_labels = clusterer.fit_predict(data)
+        
+        print "Running KMeans on {0} Clusters".format(n_clusters)
+        # Initialize the clusterer with n_clusters value, 15 runs of the algorithm and a random generator
+        clusterer = KMeans(n_clusters=n_clusters, n_init=300, init='k-means++', max_iter = 1000)
+        cluster_labels = clusterer.fit_predict(data)
 
-            # The silhouette_score gives the average value for all the samples.
-            # This gives a perspective into the density and separation of the formed clusters
-            #silhouette_avg = silhouette_score(data, cluster_labels) 
+        # The silhouette_score gives the average value for all the samples.
+        # This gives a perspective into the density and separation of the formed clusters
+        #silhouette_avg = silhouette_score(data, cluster_labels) 
             
-            fid.write("The cluster centers for K={0}\n".format(n_clusters))
-            fid.write(str(clusterer.cluster_centers_))
-            #fid.write("\nThe cluster centers compared to the mean for K={0}\n".format(n_clusters))
-            #fid.write(str(clusterer.cluster_centers_/avgVec * 100))
+        fid.write("The cluster centers for K={0}\n".format(n_clusters))
+        fid.write(str(clusterer.cluster_centers_))
+        #fid.write("\nThe cluster centers compared to the mean for K={0}\n".format(n_clusters))
+        #fid.write(str(clusterer.cluster_centers_/avgVec * 100))
               
-            for i in range(n_clusters):
-                cluster_i_size = 0
-                for val in cluster_labels:
-                    if val == i:
-                        cluster_i_size = cluster_i_size + 1               
-                fid.write("\nThe size of cluster {0} is {1}".format(i,cluster_i_size))
+        for i in range(n_clusters):
+            cluster_i_size = 0
+            for val in cluster_labels:
+                if val == i:
+                    cluster_i_size = cluster_i_size + 1               
+            fid.write("\nThe size of cluster {0} is {1}".format(i,cluster_i_size))
 
 
-            fid.write("\nThe inertia is {0}\n\n".format(clusterer.inertia_))
-            fid.write("\n")
+        fid.write("\nThe inertia is {0}\n\n".format(clusterer.inertia_))
+        fid.write("\n")
            
             
-            fid.write("\n\n")
+        fid.write("\n\n")
             
-            #fid.write("For {0} clusters the average silhouette score is : {1}".format(n_clusters, silhouette_avg))
+        #fid.write("For {0} clusters the average silhouette score is : {1}".format(n_clusters, silhouette_avg))
 
     '''
         Runs Hirarchical Clustering on the Dataset,
