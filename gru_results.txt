@@ -1,0 +1,1 @@
+layers,loss,batch_size,dropOut,0.05,momentum,session_key,activation,recall

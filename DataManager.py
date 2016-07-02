@@ -223,6 +223,8 @@ class DataManager(object):
                 print(str(selectedAid))    
                 df = df.loc[df['Aid'] != selectedAid]
 
+        #df = df.loc[df['QueryName'] != "RequestSummaryQuery"]
+
         if(transformFields):                                             
             # Transform all the string columns into integers
             self.mcle = MultiColumnLabelEncoder(columns=self.fields)

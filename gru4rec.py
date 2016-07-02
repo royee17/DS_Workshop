@@ -13,6 +13,8 @@ import pandas as pd
 from collections import OrderedDict
 import math
 srng = RandomStreams()
+
+
 class GRU4Rec:
     '''
     GRU4Rec(layers, n_epochs=10, batch_size=50, dropout_p_hidden=0.4, learning_rate=0.05, momentum=0.0, adapt='adagrad', decay=0.9, grad_cap=0, sigma=0, init_as_normal=False, reset_after_session=True, loss='top1', hidden_act='tanh', final_act=None, train_random_order=False, lmbd=0.0, session_key='SessionId', item_key='ItemId', time_key='Time')
@@ -152,7 +154,9 @@ class GRU4Rec:
             return theano.shared(self.floatX(np.random.rand(*shape) * sigma * 2 - sigma), borrow=True)
     def init(self, data):
         data.sort_values([self.session_key, self.time_key], inplace=True)
+        # Create a vector in the size of the unique sessions
         offset_sessions = np.zeros(data[self.session_key].nunique()+1, dtype=np.int32)
+        # For each session get the number of requests in it and then sum it cummulutive (ex: session 1 has 10 queries, and session 2 has 6, then we get an array of (10,16))
         offset_sessions[1:] = data.groupby(self.session_key).size().cumsum()
         np.random.seed(42)
         self.Wx, self.Wh, self.Wr, self.Wz, self.Whr, self.Whz, self.Bh, self.Br, self.Bz, self.H = [], [], [], [], [], [], [], [], [], []
@@ -230,7 +234,9 @@ class GRU4Rec:
         Sr = self.Wr[0][X]
         Sz = self.Wz[0][X]
         r = T.nnet.sigmoid(Sr + T.dot(H[0], self.Whr[0]) + self.Br[0])
+
         h = self.hidden_activation(Sx + T.dot(H[0] * r, self.Wh[0]) + self.Bh[0])
+
         z = T.nnet.sigmoid(Sz + T.dot(H[0], self.Whz[0]) + self.Bz[0])
         h = (1.0-z)*H[0] + z*h
         h = self.dropout(h, drop_p_hidden)
@@ -283,6 +289,7 @@ class GRU4Rec:
         itemids = data[self.item_key].unique()
         self.n_items = len(itemids)
         self.itemidmap = pd.Series(data=np.arange(self.n_items), index=itemids)
+        # Add ItemIdx column to the dataframe, remaps the query name id into item id
         data = pd.merge(data, pd.DataFrame({self.item_key:itemids, 'ItemIdx':self.itemidmap[itemids].values}), on=self.item_key, how='inner')
         offset_sessions = self.init(data)
         
@@ -298,7 +305,6 @@ class GRU4Rec:
             updates[self.H[i]] = H_new[i]
         train_function = function(inputs=[X, Y], outputs=cost, updates=updates, allow_input_downcast=True)
         
-        
         for epoch in range(self.n_epochs):
             for i in range(len(self.layers)):
                 self.H[i].set_value(np.zeros((self.batch_size,self.layers[i]), dtype=theano.config.floatX), borrow=True)
@@ -310,13 +316,13 @@ class GRU4Rec:
             end = offset_sessions[session_idx_arr[iters]+1]
             finished = False
             while not finished:
-                minlen = (end-start).min()
-                out_idx = data.ItemIdx.values[start]
+                minlen = (end-start).min() # minimum of the session size
+                out_idx = data.ItemIdx.values[start] # Gets the first item for each session (if batch_size = 5 then it gets the first item of the first 5 sessions)
                 for i in range(minlen-1):
-                    in_idx = out_idx
-                    out_idx = data.ItemIdx.values[start+i+1]
+                    in_idx = out_idx # Goes through the minimum session size and then trains the rnn by the values of the session
+                    out_idx = data.ItemIdx.values[start+i+1] # The next items for the sessions
                     y = out_idx
-                    cost = train_function(in_idx, y)
+                    cost = train_function(in_idx, y) 
                     c.append(cost)
                     if np.isnan(cost):
                         print(str(epoch) + ': NaN error!')
@@ -342,7 +348,7 @@ class GRU4Rec:
                 print('Epoch {}: NaN error!'.format(str(epoch)))
                 self.error_during_train = True
                 return
-            #print('Epoch{}\tloss: {:.6f}'.format(epoch, avgc))
+            print('Epoch{}\tloss: {:.6f}'.format(epoch, avgc))
 
     def predict_next_batch(self, session_ids, input_item_ids, predict_for_item_ids=None, batch=100):
         '''
@@ -401,9 +407,9 @@ class GRU4Rec:
             preds = np.asarray(self.predict(in_idxs, iIdxs)).T
             return pd.DataFrame(data=preds, index=predict_for_item_ids)
         else:
-            if(not math.isnan(in_idxs.values[4])):
-                preds = np.asarray(self.predict(in_idxs)).T
-                return pd.DataFrame(data=preds, index=self.itemidmap.index)
+            in_idxs.values[np.isnan(in_idxs.values)] = 0 
+            preds = np.asarray(self.predict(in_idxs)).T
+            return pd.DataFrame(data=preds, index=self.itemidmap.index)
     
     def evaluate_sessions_batch(self, test_data, items=None, cut_off=20, batch_size=100, break_ties=False, session_key='SessionId', item_key='ItemId', time_key='Time'):
         '''
@@ -468,6 +474,8 @@ class GRU4Rec:
                     preds = self.predict_next_batch(iters, in_idx, np.hstack([items, uniq_out[~np.in1d(uniq_out,items)]]), batch_size)
                 else:
                     preds = self.predict_next_batch(iters, in_idx, None, batch_size)
+                    # preds is a matrix of (rows= unique queries, columns = sessions in batch)
+                    # Values = probability of the query as the next method
                 if break_ties:
                     preds += np.random.rand(*preds.values.shape) * 1e-8
                 preds.fillna(0, inplace=True)
@@ -477,6 +485,9 @@ class GRU4Rec:
                     targets = np.diag(preds.ix[in_idx].values)[valid_mask]
                     ranks = (others > targets).sum(axis=0) +1
                 else:
+                    # ranks.shape = batch_size
+                    # sums for each session the number of times that the prediction score was greater then the score that was given to the test's items
+                    # so if there was no item with score higher the test item then the sum would be 0 (+1) = 1 which means the best
                     ranks = (preds.values.T[valid_mask].T > np.diag(preds.ix[in_idx].values)[valid_mask]).sum(axis=0) + 1
                 rank_ok = ranks < cut_off
                 recall += rank_ok.sum()

@@ -11,7 +11,7 @@ import matplotlib.cm as cm
 import numpy as np
 import pandas as pd
 import baselines
-#import networkx as nx
+import networkx as nx
 from matplotlib import colors
 from random import randint
 
@@ -35,9 +35,9 @@ class AlgorithmManager(object):
 
         data = self.dataManager.loadData(["QueryName","TimeStamp","Sid","Aid"],transformFields=False)
         
-        data = data[data.Aid == "012abc55-5801-494f-a77f-a799f1d855de"]
+        #data = data[data.Aid == "012abc55-5801-494f-a77f-a799f1d855de"]
         data.is_copy = False
-        data.sort_values(["TimeStamp"], inplace=True) # Sort by "TimeStamp"
+        data.sort_values(["Sid","TimeStamp"], inplace=True) # Sort by "TimeStamp"
                 
         G=nx.DiGraph()
         lastSid = 0;
@@ -49,13 +49,14 @@ class AlgorithmManager(object):
             if(data["Sid"].values[i] != lastSid):
                 lastSid = data["Sid"].values[i];
                 curColor = colors_list[randint(0,len(colors_list)-1)]
+                continue;
             try:
                 G[fromQuery][toQuery]['weight']=G[fromQuery][toQuery]['weight']+1;
             except:
                 G.add_edge(fromQuery,toQuery,weight=1,color=curColor)
 
-        #elarge=[(u,v) for (u,v,d) in G.edges(data=True) if d['weight'] >0]
-        esmall=[(u,v) for (u,v,d) in G.edges(data=True) if d['weight'] <=10000]
+        elarge=[(u,v) for (u,v,d) in G.edges(data=True) if d['weight'] >5000]
+        esmall=[(u,v) for (u,v,d) in G.edges(data=True) if d['weight'] <5000]
 
         pos=nx.circular_layout(G)
         plt.figure(figsize=(20,20))
@@ -67,8 +68,8 @@ class AlgorithmManager(object):
 
         # edges
 
-       # nx.draw_networkx_edges(G,pos,edgelist=elarge,
-       #                         width=1)
+        nx.draw_networkx_edges(G,pos,edgelist=elarge,
+                                width=1)
 
         nx.draw_networkx_edges(G,pos,edgelist=esmall,
                         width=1,alpha=0.1,edge_color='b',style='dashed')
@@ -82,6 +83,9 @@ class AlgorithmManager(object):
             labels[edge[0]] = edge[0]
             labels[edge[1]] = edge[1]
 
+        for edge in elarge:
+            labels[edge[0]] = edge[0]
+            labels[edge[1]] = edge[1]
         # Labels for the nodes in eLarge
         nx.draw_networkx_labels(G,pos,labels,font_size=12,font_color='b')
         
@@ -107,7 +111,38 @@ class AlgorithmManager(object):
                             float(notFirstCount))
          )
         result.plot(kind='bar')
-        plt.show()     
+        plt.show()
+        
+        '''
+        Displays the count of below and above session for each QueryName divided by the number of queries in session in the dataset
+    ''' 
+    
+    '''
+        For each unique query it displays the percentage of the users that have 3 or more sessions
+    '''
+    def displayCountSessionByQueryName(self):
+        data = self.dataManager.loadData(["QueryName","Aid","IsFirst","Sid"],transformFields=False)
+
+        result = data.groupby('Aid').apply(
+             lambda group: (group.Sid.nunique() <= 3) # 3 is the average (faster this way)
+         )
+        resultBelow = result[result == True]
+        resultAbove = result[result == False]
+
+        belowCount = (data[data.Aid.isin(resultBelow.index)]).sum()
+        aboveCount = data[data.Aid.isin(resultAbove.index)].sum()
+        
+        result = data.groupby('QueryName').apply(
+             lambda group: (group.Aid.isin(resultBelow.index).sum() / # Sum = count of true
+                            float(belowCount))
+         ).to_frame('Below')
+
+        result['Above'] = data.groupby('QueryName').apply(
+             lambda group: ((group.Aid.isin(resultAbove.index)).sum() /  # Count of total minus count of true
+                            float(aboveCount))
+         )
+        result.plot(kind='bar')
+        plt.show()        
 
     '''
         Session duration for users that visited the site more then 3 times is significantly higher than those who visited 3 times or less
@@ -146,6 +181,9 @@ class AlgorithmManager(object):
         # T-Test with unequal variance
         stats.ttest_ind(sumOfTimestampBelow3, sumOfTimestampAbove3, equal_var=False)
 
+    '''
+        Trying to perform a decision tree in order to detect which features best forcast low retension
+    '''
     def printDecisionTreeForBelow3(self):
         from sklearn.ensemble import RandomForestClassifier
         import pandas as pd
@@ -177,11 +215,15 @@ class AlgorithmManager(object):
                 my_file = tree.export_graphviz(tree_in_forest, out_file = my_file)
             i_tree = i_tree + 1
 
+
+    '''
+        For each unique value in the column, we display the percentage of the users that have 3 sessions or more
+    '''
     def genericBelowAverageDisplay(self,column):
-        data = dataManager.loadData(["Sid","Aid",column],transformFields=False)
+        data = self.dataManager.loadData(["Sid","Aid",column],transformFields=False,removeFirstK=5)
 
         result = data.groupby('Aid').apply(
-            lambda group: (group.Sid.nunique()<=1)
+            lambda group: (group.Sid.nunique()<=3)
         )
         below = result[result == True]
         belowData = data.loc[data['Aid'].isin(below.index)]
@@ -192,8 +234,8 @@ class AlgorithmManager(object):
         col['Below'] = belowData.groupby([column]).apply(
             lambda group: (group.Aid.nunique())
         )
-        (col['Below']/col['Total']).plot(kind='bar')
-
+        (col['Below']/col['Total']).plot(kind='barh', width=0.5)
+        plt.tight_layout()
         plt.show()
 
     '''
@@ -237,7 +279,39 @@ class AlgorithmManager(object):
         plt.xticks(np.arange(result.min(), result.max()+1, 5.0))
         plt.savefig('GroupByAidCountSidForAll.png')
         plt.show()
-          
+      
+        
+    '''
+        Running baseline methods: Random and ItemKNN
+    '''
+    def compareGRUtoBaselines():
+        import gru4rec
+        session_key = "Sid" #"Aid" # Or Sid
+        time_key = "TimeStamp"
+        item_key = "QueryName" #"QueryName"
+
+        data = self.dataManager.loadData([time_key,item_key,session_key,"Aid","Sid"],removeFirstK=5) 
+
+        train, test = self.dataManager.splitData(data,isRandom=False)
+                
+        rand = baselines.RandomPred()
+        rand.fit(train)
+        res = baselines.evaluate_sessions(rand,test,train,cut_off=2, session_key = session_key, item_key = item_key, time_key = time_key)
+        print('Sid: Recall@2: {}'.format(res[0]))
+        res = baselines.evaluate_sessions(rand,test,train,cut_off=2, session_key = "Aid", item_key = item_key, time_key = time_key)
+        print('AidRecall@2: {}'.format(res[0]))
+        #itemknn = baselines.ItemKNN(n_sims = 100, lmbd = 20, alpha = 0.5, session_key = session_key, item_key = item_key, time_key = time_key)
+
+        itemknn.fit(train)
+        res = baselines.evaluate_sessions(itemknn,test,train,cut_off=2, session_key = session_key, item_key = item_key, time_key = time_key)
+        print('Recall@2: {}'.format(res[0]))
+        itemknn = baselines.ItemKNN(n_sims = 100, lmbd = 20, alpha = 0.5, session_key = "Aid", item_key = item_key, time_key = time_key)
+        itemknn.fit(train)
+        res = baselines.evaluate_sessions(itemknn,test,train,cut_off=2, session_key = session_key, item_key = item_key, time_key = time_key)
+        print('Recall@2: {}'.format(res[0]))
+        
+        
+            
     '''
         Runs recurrent neural network based on the paper: http://arxiv.org/pdf/1511.06939v4.pdf
     ''' 
@@ -245,26 +319,82 @@ class AlgorithmManager(object):
         import gru4rec
         session_key = "Sid" #"Aid" # Or Sid
         time_key = "TimeStamp"
-        item_key = "QueryName"
+        item_key = "QueryName" #"QueryName"
 
-        data = self.dataManager.loadData([time_key,item_key,"Aid","Sid"]) 
-        
+        data = self.dataManager.loadData([time_key,item_key,session_key,"Aid","Sid"],removeFirstK=5) 
+
         train, test = self.dataManager.splitData(data,isRandom=False)
-        print('Training GRU4Rec')    
-            
-        for batch_size in [5,10,15]:
-            for momentum in [1,2,3,4,5]:
-                for dropOut in [1,2,3,4,5]:
-                    print('Batch Size: ' + str(batch_size) + ' Dropout: ' + str(float(dropOut)/10.0) + ' Momentum: ' + str(float(momentum)/10.0))
-                    gru = gru4rec.GRU4Rec(layers=[1000], loss='top1', batch_size=batch_size, dropout_p_hidden=float(dropOut)/10.0, learning_rate=0.05, momentum=float(momentum)/10.0
-                                            ,n_epochs=10,hidden_act = 'tanh', final_act='tanh'
-                                            ,session_key=session_key, item_key=item_key, time_key=time_key)
-                    gru.fit(train)
+
+        print('Training GRU4Rec') 
         
-                    res = gru.evaluate_sessions_batch(test, cut_off=2, batch_size=batch_size, 
-                                                session_key=session_key, item_key=item_key, time_key=time_key)
-                    print('Recall@2: {}'.format(res[0]))
-                    print('MRR@2: {}'.format(res[1]))
+        batch_size = 200
+        for layers in [100,1000]:
+            for loss_type in ['top1']:
+                for momentum in [3,4,5]:
+                    for dropOut in [3,4,5]:
+                        try:
+                            print('Batch Size: ' + str(batch_size) + ' Dropout: ' + str(float(dropOut)/10.0) + ' Momentum: ' + str(float(momentum)/10.0))
+                            gru = gru4rec.GRU4Rec(layers=[layers], loss=loss_type, batch_size=batch_size, dropout_p_hidden=float(dropOut)/10.0, learning_rate=0.05, momentum=float(momentum)/10.0
+                                                    ,n_epochs=3,hidden_act = 'tanh', final_act='tanh'
+                                                    ,session_key=session_key, item_key=item_key, time_key=time_key)
+                            gru.fit(train)
+        
+                            res = gru.evaluate_sessions_batch(test, cut_off=2, batch_size=batch_size, 
+                                                        session_key=session_key, item_key=item_key, time_key=time_key)
+
+                            print('Recall : {}'.format(res[0]))
+                            
+                        except:
+                            print("Unexpected error")
+            
+    '''
+        Runs the GRU, learns from the users that have more than average sessions and predicts on users that have less than 3 sessions and above
+    ''' 
+    def learnFromExperiencedGRU(self):   
+        import gru4rec
+        session_key = "Sid" #"Aid" # Or Sid
+        time_key = "TimeStamp"
+        item_key = "QueryName" #"QueryName"
+
+        data = self.dataManager.loadData([time_key,item_key,session_key,"Aid","Sid"],removeFirstK=5) 
+
+                
+        result = data.groupby('Aid').apply(
+             lambda group: (group.Sid.nunique() <= 3) 
+         )
+        resultBelow = result[result == True]
+        resultAbove = result[result == False]
+
+        dataBelow = data[data.Aid.isin(resultBelow.index)]        
+        dataAbove = data[data.Aid.isin(resultAbove.index)]
+
+        train, test = self.dataManager.splitData(dataAbove,isRandom=False)
+        testBelow = dataBelow[:len(test)]
+
+        print('Training GRU4Rec') 
+        
+        batch_size = 200
+        for layers in [1000]:
+            for loss_type in ['top1']:
+                for momentum in [3,4,5]:
+                    for dropOut in [3]:
+                        try:
+                            print('Batch Size: ' + str(batch_size) + ' Dropout: ' + str(float(dropOut)/10.0) + ' Momentum: ' + str(float(momentum)/10.0))
+                            gru = gru4rec.GRU4Rec(layers=[1000], loss=loss_type, batch_size=batch_size, dropout_p_hidden=float(dropOut)/10.0, learning_rate=0.05, momentum=float(momentum)/10.0
+                                                    ,n_epochs=3,hidden_act = 'tanh', final_act='tanh'
+                                                    ,session_key=session_key, item_key=item_key, time_key=time_key)
+                            gru.fit(train)
+        
+                            res = gru.evaluate_sessions_batch(test, cut_off=2, batch_size=batch_size, 
+                                                        session_key=session_key, item_key=item_key, time_key=time_key)
+
+                            print('Above Test Recall : {}'.format(res[0]))
+                            
+                            res = gru.evaluate_sessions_batch(testBelow, cut_off=2, batch_size=batch_size, 
+                                                        session_key=session_key, item_key=item_key, time_key=time_key)
+                            print('Below Recall : {}'.format(res[0]))
+                        except:
+                            print("Unexpected error")
 
     '''
         Runs recurrent neural network based on the paper: http://arxiv.org/pdf/1511.06939v4.pdf
@@ -298,7 +428,7 @@ class AlgorithmManager(object):
         time_key = "TimeStamp"
         item_key = "QueryName"
 
-        data = self.dataManager.loadData([time_key,item_key,"Aid","Sid"]) 
+        data = self.dataManager.loadData([time_key,item_key,"Aid","Sid"],removeFirstK=5,onlyFirstFile=True) 
 
         result = data.groupby('Aid').apply(
              lambda group: (group.Sid.nunique())
@@ -329,25 +459,18 @@ class AlgorithmManager(object):
             test.is_copy = False
             test.sort_values([time_key,session_key], inplace=True) # Sort by time_key first and then by session_key
  
-            correct = 0;
-            for i in range(len(test)-batch_size-1):
-                # Goes from 1 to len(test) and gets the batches - for example: [1-5],[2-6],[3-6]
-                curSessions = test[session_key].values[range(i,i+batch_size)] 
-                curItems = test[item_key].values[range(i,i+batch_size)]
-
-                # Predicts the next batch (if we give [1-5] it predicts [6-10])
-                preds = gru.predict_next_batch(curSessions, curItems, None, batch_size)
-
-                # Take only the first element from the next batch and compare it (for example: predict([1-5]) returns [6-10] and we check if predict[6]==test[6])
-                if(preds[0].idxmax() == test[item_key].values[i+batch_size+1]):
-                    print(str(i+batch_size+1) + " " + str(preds[0].idxmax()))
-                    correct = correct+1;
+            specificSession = test[test[session_key] == test[session_key].values[0]]
+            preds = gru.predict_next_batch(specificSession[session_key], specificSession[item_key], None, len(specificSession))
                     
        
             print('Correct: {}'.format(correct))
             if(len(test)-batch_size-1 > 0):
                 print('Accuracy: {}'.format(float(correct)/float(len(test)-batch_size-1)))
 
+
+    '''
+        Runs PCA on the data
+    '''
     def runPCA(self,data, n_components='mle', plot=False, pivot = 'Aid'):
         pca = PCA(n_components, copy=True)
         # Plot the PCA spectrum
@@ -365,6 +488,7 @@ class AlgorithmManager(object):
             plt.ylabel('explained_variance_')
             plt.savefig("PCA{0}.png".format(pivot))
         return new_data
+
     '''
         Runs K means on the Dataset        
     '''
@@ -519,3 +643,27 @@ class AlgorithmManager(object):
         
         print('Finshed processing all the data.')
         return vectByTypes
+
+    '''
+        Runs T-SNE on the Dataset        
+    '''
+    def runTSNE(self, pivot, normalize = False, factor = 100):
+        
+        # Preparing the data : loading, normalizing (if selected) and selecting 100k record randomly.
+        data = self.loadOperationsByOneOfK(False, pivot, normalize, factor)
+        np.random.shuffle(data)
+
+        from sklearn.manifold import TSNE
+        from sklearn.decomposition import PCA
+
+        X_tsne = TSNE(learning_rate=100).fit_transform(data)
+        X_pca = PCA().fit_transform(data)
+        figure(figsize=(10, 5))
+        subplot(121)
+        scatter(X_tsne[:, 0], X_tsne[:, 1])
+        subplot(122)
+        scatter(X_pca[:, 0], X_pca[:, 1])
+        plt.show();
+
+
+            

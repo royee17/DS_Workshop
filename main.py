@@ -10,33 +10,16 @@ royeeDir = ""
 # Nadav's Directory
 nadavfile = "attempt2.txt"
 
-dataManager = DataManager( "D:\DataScienceWorkshop")
+dataManager = DataManager(liorDir)
 algorithmManager = AlgorithmManager(dataManager)
+#algorithmManager.runTSNE(pivot = 'Aid', normalize = False)
+
 #algorithmManager.runHierarchicalClustering(file="HierarchicalClusteringAttempt1.txt", normalize = False,n_components=5)
 #algorithmManager.runHierarchicalClustering(pivot='Sid', file=False, normalize = False,n_components = 5)
-'''
-data = algorithmManager.loadOperationsByOneOfK(False, pivot="Aid", normalize=False)
-algorithmManager.runPCA(data,n_components=65,plot=True, pivot='Aid')
-data = algorithmManager.loadOperationsByOneOfK(False, pivot="Sid", normalize=False)
-algorithmManager.runPCA(data,n_components=65,plot=True, pivot = 'Sid')
-'''
-'''
-    Trying to recover the ndarray
 
-
-str = ""
-for i in range(64):
-    str = str + "i4,"
-str = str + "i4"
-AidArray = np.dtype(str)
-vects = np.fromfile(nadavfile, dtype = AidArray)
-print "\n\n\n The data recovered:\n\n"
-print(vects[1:10])
-'''
-
-algorithmManager.runKMeans(pivot = 'Aid', file="Aidcenters5PCA.txt", normalize = False,n_clusters=5, n_components = 5)
+#algorithmManager.runKMeans(pivot = 'Aid', file="Aidcenters5PCA.txt", normalize = False,n_clusters=5, n_components = 5)
 #algorithmManager.runKMeans(pivot = 'Aid', file="AidcentersNoSil2.txt", normalize = True)
-algorithmManager.runKMeans(pivot = 'Sid', file="Sidcenters5PCA.txt", normalize = False,n_clusters=5, n_components = 5)
+#algorithmManager.runKMeans(pivot = 'Sid', file="Sidcenters5PCA.txt", normalize = False,n_clusters=5, n_components = 5)
 #algorithmManager.runKMeans(pivot = 'Sid', file="SidcentersAfterPCA1.txt", normalize = False,n_components=5)
 
 #algorithmManager.displayAidBySid()
@@ -45,8 +28,14 @@ algorithmManager.runKMeans(pivot = 'Sid', file="Sidcenters5PCA.txt", normalize =
 #algorithmManager.displayGraph()
 #algorithmManager.runKMeans()
 
-#algorithmManager.runGRU4RecForSpecificAid()
+#algorithmManager.displayCountSessionByQueryName()
+#algorithmManager.displayGraph()
+#algorithmManager.genericBelowAverageDisplay("Browser");
 
+#algorithmManager.genericBelowAverageDisplay("Country")
+#algorithmManager.genericBelowAverageDisplay("QueryName")
+
+#algorithmManager.runGRU4Rec()
 
 
 
