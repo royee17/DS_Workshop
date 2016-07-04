@@ -467,6 +467,55 @@ class AlgorithmManager(object):
             if(len(test)-batch_size-1 > 0):
                 print('Accuracy: {}'.format(float(correct)/float(len(test)-batch_size-1)))
 
+    def getRecallForPrevious(self):
+        session_key = "Sid" #"Aid" # Or Sid
+        time_key = "TimeStamp"
+        item_key = "Pn" #"QueryName"
+        data = self.dataManager.loadData(["TimeStamp","Pn","QueryName","Sid","Aid"],transformFields=False,removeFirstK=10,isFirstMonth=True) 
+        
+        data.is_copy = False
+        data.sort_values([session_key,"TimeStamp"], inplace=True) # Sort by "TimeStamp"
+                
+        lastSid = 0;
+        totalCount = 0;
+        recallSuccess = 0;
+        for i in range(len(data)-1):
+            fromQuery = data[item_key].values[i];
+            toQuery = data[item_key].values[i+1];
+            if(data[session_key].values[i] != lastSid): # Switched Session
+                lastSid = data[session_key].values[i]; # not adding to total count (not counting first of every session)
+            else:
+                if(fromQuery == toQuery):
+                    recallSuccess = recallSuccess + 1;
+                totalCount = totalCount + 1
+        print(float(float(recallSuccess) /float(totalCount))) 
+
+        
+    def runGRU4RecAndDisplaySessions(self):
+        session_key = "Sid" #"Aid" # Or Sid
+        time_key = "TimeStamp"
+        item_key = "Pn" #"QueryName"
+        data = self.dataManager.loadData(["TimeStamp","Pn","QueryName","Sid","Aid"],transformFields=False,removeFirstK=10,isFirstMonth=True)    
+
+        train, test = self.dataManager.splitData(data,isRandom=False)
+
+        print('Training GRU4Rec') 
+
+        batch_size = 200
+        loss_type = 'top1'
+        momentum = 3
+        dropOut = 3
+        for layers in [100,1000]:   
+            print('Layers: ' + str(layers) + ' Batch Size: ' + str(batch_size) + ' Dropout: ' + str(float(dropOut)/10.0) + ' Momentum: ' + str(float(momentum)/10.0))
+            gru = GRU4Rec(layers=[layers], loss=loss_type, batch_size=batch_size, dropout_p_hidden=float(dropOut)/10.0, learning_rate=0.05, momentum=float(momentum)/10.0
+                                    ,n_epochs=3,hidden_act = 'tanh', final_act='tanh'
+                                    ,session_key=session_key, item_key=item_key, time_key=time_key)
+            gru.fit(train)
+
+            res = gru.evaluate_sessions_batch(test, cut_off=2, batch_size=1, # Batch size = 1 inorder to better view each session
+                                        session_key=session_key, item_key=item_key, time_key=time_key,display=True)
+
+            print('Recall : {}'.format(res[0]))
 
     '''
         Runs PCA on the data

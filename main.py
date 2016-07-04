@@ -37,5 +37,6 @@ algorithmManager = AlgorithmManager(dataManager)
 
 #algorithmManager.runGRU4Rec()
 
+algorithmManager.getRecallForPrevious()
 
-
+algorithmManager.runGRU4RecAndDisplaySessions()

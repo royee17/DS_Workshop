@@ -195,20 +195,24 @@ class DataManager(object):
             onlyFirstFile (not required): Only loads the first file
             removeFirstK (not required): Removes the first users with highest number of Sids
     '''
-    def loadData(self,fields=False,transformFields=True,onlyFirstFile=False,removeFirstK=0):
+    def loadData(self,fields=False,transformFields=True,onlyFirstFile=False,removeFirstK=0,isFirstMonth=False):
 
         self.fields = fields;
         if(not self.fields):
             self.fields = ["Browser","Device","Os","Resolution","Continent", "Country","Sid","Aid","Pn", "QueryName","Response","Result","Status","StatusText","Type"]
         
         ajax_events_list = []
+        i=0
         for subdir, dirs, files in os.walk(self.rootdir):
             for dir in dirs:
+                i+=1
                 # Load the csv and append to a list
                 print('reading the ajax file in {0}'.format(dir))
                 ajax_events_list.append(pd.read_csv(os.path.join(self.rootdir,dir,'ajax_events.csv'),usecols=self.fields))
                 if(onlyFirstFile):
-                    break;                
+                    break;     
+                if(isFirstMonth and i>31):
+                    break;     
         # Concat the list of the dataframes
         df = pd.concat(ajax_events_list)
                 

@@ -411,7 +411,7 @@ class GRU4Rec:
             preds = np.asarray(self.predict(in_idxs)).T
             return pd.DataFrame(data=preds, index=self.itemidmap.index)
     
-    def evaluate_sessions_batch(self, test_data, items=None, cut_off=20, batch_size=100, break_ties=False, session_key='SessionId', item_key='ItemId', time_key='Time'):
+    def evaluate_sessions_batch(self, test_data, items=None, cut_off=20, batch_size=100, break_ties=False, session_key='SessionId', item_key='ItemId', time_key='Time',display=False):
         '''
         Evaluates the GRU4Rec network wrt. recommendation accuracy measured by recall@N and MRR@N.
 
@@ -466,9 +466,19 @@ class GRU4Rec:
                 break
             start_valid = start[valid_mask]
             minlen = (end[valid_mask]-start_valid).min()
-            in_idx[valid_mask] = test_data[item_key].values[start_valid]
+            #in_idx[valid_mask] = test_data[item_key].values[start_valid] - old
+            # Getting the first of each session (batch)
+            in_idx[valid_mask] = [self.itemidmap[itemName] for itemName in test_data[item_key].values[start_valid]] # Getting the id from the name 
+            if(minlen > 1 and display):
+                print("Session Length: "+str(minlen))
+
             for i in range(minlen-1):
-                out_idx = test_data[item_key].values[start_valid+i+1]
+                #out_idx = test_data[item_key].values[start_valid+i+1]
+                if(display):
+                    for itemName in test_data[item_key].values[start_valid+i+1]:
+                        print(" -- " + itemName)
+                    
+                out_idx = [self.itemidmap[itemName] for itemName in test_data[item_key].values[start_valid+i+1]] 
                 if items is not None:
                     uniq_out = np.unique(np.array(out_idx, dtype=np.int32))
                     preds = self.predict_next_batch(iters, in_idx, np.hstack([items, uniq_out[~np.in1d(uniq_out,items)]]), batch_size)
@@ -479,7 +489,7 @@ class GRU4Rec:
                 if break_ties:
                     preds += np.random.rand(*preds.values.shape) * 1e-8
                 preds.fillna(0, inplace=True)
-                in_idx[valid_mask] = out_idx
+                in_idx[valid_mask] = out_idx # Extending the input for each session (the session is getting bigger so we have a bigger history)
                 if items is not None: # The list of item ID that you want to compare the score of the relevant item to. If None, all items of the training set are used
                     others = preds.ix[items].values.T[valid_mask].T
                     targets = np.diag(preds.ix[in_idx].values)[valid_mask]
@@ -490,9 +500,12 @@ class GRU4Rec:
                     # so if there was no item with score higher the test item then the sum would be 0 (+1) = 1 which means the best
                     ranks = (preds.values.T[valid_mask].T > np.diag(preds.ix[in_idx].values)[valid_mask]).sum(axis=0) + 1
                 rank_ok = ranks < cut_off
+                if(display):
+                    print(" -- " + str(rank_ok))
                 recall += rank_ok.sum()
                 mrr += (1.0 / ranks[rank_ok]).sum()
                 evalutation_point_count += len(ranks)
+
             start = start+minlen-1
             mask = np.arange(len(iters))[(valid_mask) & (end-start<=1)]
             for idx in mask:
