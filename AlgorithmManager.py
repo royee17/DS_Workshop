@@ -11,9 +11,71 @@ import matplotlib.cm as cm
 import numpy as np
 import pandas as pd
 import baselines
-import networkx as nx
+#import networkx as nx
 from matplotlib import colors
 from random import randint
+
+
+'''
+        Feature Selection
+        ------------------------------
+        criterion function
+'''
+def criterion_func(data,features):    
+    from sklearn.linear_model import SGDClassifier
+    from sklearn.cross_validation import train_test_split
+   
+    clf = SGDClassifier(loss='log', random_state=1, n_iter=1)
+
+    y, _ = pd.factorize(data['IsBelow'])
+    X_train, X_test, y_train, y_test = train_test_split(data[features], y, test_size=0.33, random_state=42)
+    clf.fit(X_train, y_train)
+
+    return clf.score(X_test, y_test)
+
+
+'''
+        Implementation of a Sequential Forward Selection algorithm.
+        features (list): The feature space as a list of features.
+        max_k: Termination criterion; the size of the returned feature subset.
+        criterion_func (function): Function that is used to evaluate the performance of the feature subset.
+        print_steps (bool): Prints the algorithm procedure if True.
+        Returns the selected feature subset, as a list of features of length max_k.
+'''
+
+def seq_forw_select(data,features, max_k, criterion_func, print_steps=False):
+       
+    # Initialization
+    feat_sub = []
+    k = 0
+    d = len(features)
+    if max_k > d:
+        max_k = d
+    
+    while True:
+        
+        # Inclusion step
+        if print_steps:
+            print('\nInclusion from feature space', features)
+            print(feat_sub + [features[0]])
+        crit_func_max = criterion_func(data,feat_sub + [features[0]])
+        best_feat = features[0]
+        for x in features[1:]:
+            crit_func_eval = criterion_func(data,feat_sub + [x])
+            if crit_func_eval > crit_func_max:
+                crit_func_max = crit_func_eval
+                best_feat = x
+        feat_sub.append(best_feat)
+        if print_steps:
+            print('include: {} -> feature subset: {}'.format(best_feat, feat_sub))
+        features.remove(best_feat)
+        
+        # Termination condition
+        k = len(feat_sub)
+        if k == max_k:
+            break
+                
+    return feat_sub
 
 class AlgorithmManager(object):
 
@@ -182,7 +244,7 @@ class AlgorithmManager(object):
         stats.ttest_ind(sumOfTimestampBelow3, sumOfTimestampAbove3, equal_var=False)
 
     '''
-        Trying to perform a decision tree in order to detect which features best forcast low retension
+        Trying to perform a decision tree in order to detect which features best forcast low retention
     '''
     def printDecisionTreeForBelow3(self):
         from sklearn.ensemble import RandomForestClassifier
@@ -215,6 +277,26 @@ class AlgorithmManager(object):
                 my_file = tree.export_graphviz(tree_in_forest, out_file = my_file)
             i_tree = i_tree + 1
 
+
+
+    ''' 
+        runs the forward feature selection
+    '''
+    def run_seq_forw_select(self):
+        data = self.dataManager.loadData(["QueryName","TimeStamp","Sid","Aid","Country","IsFirst","Browser","Os","Continent"],transformFields=True)
+        result = data.groupby('Aid').apply(
+            lambda group: (group.Sid.nunique()<=3)
+        )
+        below = result[result == True]
+        data['IsBelow'] = data['Aid'].isin(below.index)
+        
+        features = ["QueryName","TimeStamp","Sid","Aid","Country","IsFirst","Browser","Os","Continent"]
+        res_forw = seq_forw_select(data,features=features, max_k=4,criterion_func=criterion_func, print_steps=True) 
+        
+        return res_forw
+
+
+ 
 
     '''
         For each unique value in the column, we display the percentage of the users that have 3 sessions or more

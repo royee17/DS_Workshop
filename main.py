@@ -5,7 +5,7 @@ from DataManager import *
 liorDir = "D:\DataScienceWorkshop"
 
 # Royee's Directory
-royeeDir = ""
+royeeDir = "C:\Users\sony\school\year3\semesterB\data_science_workshop\data\data"
 
 # Nadav's Directory
 nadavfile = "attempt2.txt"
@@ -37,6 +37,9 @@ algorithmManager = AlgorithmManager(dataManager)
 
 #algorithmManager.runGRU4Rec()
 
-algorithmManager.getRecallForPrevious()
+#algorithmManager.getRecallForPrevious()
 
-algorithmManager.runGRU4RecAndDisplaySessions()
+#algorithmManager.runGRU4RecAndDisplaySessions()
+
+# Run feature selection
+algorithmManager.run_seq_forw_select()
