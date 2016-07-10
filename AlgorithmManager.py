@@ -11,7 +11,7 @@ import matplotlib.cm as cm
 import numpy as np
 import pandas as pd
 import baselines
-#import networkx as nx
+import networkx as nx
 from matplotlib import colors
 from random import randint
 
