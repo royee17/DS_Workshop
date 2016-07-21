@@ -1,12 +1,12 @@
 ﻿import warnings
 warnings.filterwarnings('ignore', 'numpy not_equal will not check object identity in the future')
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, MiniBatchKMeans
 from sklearn.decomposition import PCA
 #from sklearn.cluster import AgglomerativeClustering as hc
 from sklearn.metrics import silhouette_samples, silhouette_score
 from time import clock
 import matplotlib.pyplot as plt
-from scipy.cluster.hierarchy import dendrogram, linkage
+from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 import matplotlib.cm as cm
 import numpy as np
 import pandas as pd
@@ -600,7 +600,14 @@ class AlgorithmManager(object):
             print('Recall : {}'.format(res[0]))
 
     '''
-        Runs PCA on the data
+        Input:
+                data -          The data set we want to clear from noise.
+                pivot -         According to what pivot create the one-of-k vectors, either Aid or Sid.
+                n_components -  If n_components is a number, set the number of components to be this parameter, 'mle' lets the PCA function to choose the number of components.                                
+                plot -          If it is True, then prints to file the distribution of singular values as a graph.
+
+        Output -
+                Calculates the projection of the data into the sub-space defined by the components chosen.
     '''
     def runPCA(self,data, n_components='mle', plot=False, pivot = 'Aid'):
         pca = PCA(n_components, copy=True)
@@ -621,83 +628,124 @@ class AlgorithmManager(object):
         return new_data
 
     '''
-        Runs K means on the Dataset        
-    '''
-    def runKMeans(self, pivot, file = False, normalize = False, factor = 100, n_components=False, n_clusters = 5):
-        
-        # Preparing the data : loading, normalizing (if selected) and selecting 100k record randomly.
-        data = self.loadOperationsByOneOfK(False, pivot, normalize, factor)
-        np.random.shuffle(data)
-        #data = data[1:50000,:] # Higher amount of vectors cause memory error on silhouette_score
+        Input:
+                pivot -         According to what pivot create the one-of-k vectors, either Aid or Sid.
+                clusters -      An iterable object that contains the how many clusters we wish to create.
+                                If there is more than 1, the function will test each of the options given.
+                                If it is False, use the default 5 clusters option.
+                value -         What are the values we want to make from the one-of-k vectors, can be either QueryName or Pn.
+                file -          Redirects the output of the function to a file.
+                elbow -         Redirects the inertia's values to a .csv file.
+                clSizes -       Redirects the cluster sizes calculations to a .csv file.
+                normalize -     A flag for using normalization, if the flag is true, each coordinate is normalized, and then multiplied by the factor.
+                factor -        See the above.
+                n_components -  If n_components is a number, the function calculates the PCA and keeps only the n_components most significent components,
+                                Otherwise calculates regular K-Means without PCA.
+                Batch -         Flag that represents whether to use the Mini-Batches version of K-Means,
+                                This option seems to be not stable enough for our attempts.
 
-        # Preparing the data to compare, creating an average vector of the pivots.
+        Output -
+                Calculates the K-Means clustering of the data, and outputs the results according to the parameters given.
+    '''
+    def runKMeans(self, pivot = "Aid", clusters = False, value="QueryName", file = False, elbow = False, clSizes = False, normalize = False, factor = 100, n_components=False, Batch = False):
+        
+        # Preparing the data : loading, normalizing (if selected) and shuffling the data.
+        data = self.loadOperationsByOneOfK(pivot, value, normalize, factor)
+        np.random.shuffle(data)
+       
+
+        # Preparing the data to compare, creating an average vector of the pivots, open all the file descriptors needed.
         if file!= False:
             avgVec = np.mean(data,axis = 0)        
             fid = open(file, 'w')
-            np.set_printoptions(precision=3,suppress = True) # Prettier printing.
+            np.set_printoptions(precision=3,suppress = True) # Define a prettier printing.
             fid.write(str(avgVec))
+        if elbow != False:
+            elbowfid = open(elbow, 'w')
+        if clSizes != False:
+            sizesfid = open(clSizes, 'w')
 
         if n_components != False:
             data = self.runPCA(data,n_components)       
         
+        if clusters == False:
+            clusters = {5}
+        for n_clusters in clusters:        
+            print "Running KMeans on {0} Clusters".format(n_clusters)
+            # Initialize the clusterer with n_clusters value, 15 runs of the algorithm and a random generator
+            if Batch == False:
+                clusterer = KMeans(n_clusters=n_clusters, n_init=300, init='k-means++', max_iter = 1000)
+            else:
+                clusterer = MiniBatchKMeans(n_clusters,n_init=300, batch_size=20000, init="k-means++", max_iter = 1000)
 
-        
-        print "Running KMeans on {0} Clusters".format(n_clusters)
-        # Initialize the clusterer with n_clusters value, 15 runs of the algorithm and a random generator
-        clusterer = KMeans(n_clusters=n_clusters, n_init=300, init='k-means++', max_iter = 1000)
-        cluster_labels = clusterer.fit_predict(data)
+            cluster_labels = clusterer.fit_predict(data)
 
-        # The silhouette_score gives the average value for all the samples.
-        # This gives a perspective into the density and separation of the formed clusters
-        #silhouette_avg = silhouette_score(data, cluster_labels) 
+            # The silhouette_score gives the average value for all the samples.
+            # This gives a perspective into the density and separation of the formed clusters
+            #silhouette_avg = silhouette_score(data, cluster_labels) 
             
-        fid.write("The cluster centers for K={0}\n".format(n_clusters))
-        fid.write(str(clusterer.cluster_centers_))
-        #fid.write("\nThe cluster centers compared to the mean for K={0}\n".format(n_clusters))
-        #fid.write(str(clusterer.cluster_centers_/avgVec * 100))
-              
-        for i in range(n_clusters):
-            cluster_i_size = 0
-            for val in cluster_labels:
-                if val == i:
-                    cluster_i_size = cluster_i_size + 1               
-            fid.write("\nThe size of cluster {0} is {1}".format(i,cluster_i_size))
-
-
-        fid.write("\nThe inertia is {0}\n\n".format(clusterer.inertia_))
-        fid.write("\n")
+            fid.write("\n\nThe cluster centers for K={0}\n".format(n_clusters))
+            fid.write(str(clusterer.cluster_centers_))
+            #fid.write("\nThe cluster centers compared to the mean for K={0}\n".format(n_clusters))
+            #fid.write(str(clusterer.cluster_centers_/avgVec * 100))
+            if clSizes != False:
+                sizesfid.write("{0},".format(n_clusters))
+            for i in range(n_clusters):
+                cluster_i_size = 0
+                for val in cluster_labels:
+                    if val == i:
+                        cluster_i_size = cluster_i_size + 1             
+                if clSizes != False:
+                    sizesfid.write(",{0}".format(cluster_i_size))
+                fid.write("\nThe size of cluster {0} is {1}".format(i,cluster_i_size))
+            if elbow != False:
+                elbowfid.write("{0},{1}\n".format(n_clusters, clusterer.inertia_))
+            if clSizes != False:
+                sizesfid.write("\n")
+            fid.write("\nThe inertia is {0}\n\n".format(clusterer.inertia_))
+            fid.write("\n")
            
             
-        fid.write("\n\n")
-            
-        #fid.write("For {0} clusters the average silhouette score is : {1}".format(n_clusters, silhouette_avg))
+            fid.write("\n\n")            
+            #fid.write("For {0} clusters the average silhouette score is : {1}".format(n_clusters, silhouette_avg))
+        
+        if elbow != False:
+            elbowfid.close()
+        if clSizes != False:
+            sizesfid.close()
+
+   
 
     '''
-        Runs Hirarchical Clustering on the Dataset,
-        Creating a Dendrogram visualizing the clustering process for further analysis.
+        Input:                
+                run_number -    Allows creating files automatically without running over former files.
+                value -         What are the values we want to make from the one-of-k vectors, can be either QueryName or Pn.
+                pivot -         According to what pivot create the one-of-k vectors, either Aid or Sid.                
+                clSizes -       Redirects the cluster sizes calculations to a .csv file.
+                normalize -     A flag for using normalization, if the flag is true, each coordinate is normalized, and then multiplied by the factor.
+                factor -        See the above.
+                n_components -  If n_components is a number, the function calculates the PCA and keeps only the n_components most significent components,
+                                Otherwise calculates regular Hierarchical Clustering without PCA.
+
+        Output -
+                Calculates the Hierarchical Clustering of the data, creates a dandrogram and saves it to a file, and writes the cluster sizes to file if clSizes isn't False.
     '''
-    def runHierarchicalClustering(self,file,n_clusters=2, pivot='Aid',normalize=False,factor=100, n_components=False):        
+    def runHierarchicalClustering(self, run_number=2, value="QueryName", pivot='Aid', clSizes=False, normalize=False,factor=100, n_components=False):        
         print 'Running hierarchical clustering'
 
-        # Preparing the data : loading, normalizing (if selected) and selecting 100k record randomly.
-        data = self.loadOperationsByOneOfK(False, pivot, normalize, factor)
+        # Preparing the data : loading, normalizing (if selected) and selecting 10k record randomly.
+        data = self.loadOperationsByOneOfK(pivot, value, normalize, factor)
         np.random.shuffle(data)
-        data = data[1:10000,:] # The clustering is slow, so attempting on 10k random samples.
+        data = data[1:10,:] # The clustering is slow, so attempting the cluster only 10k random samples.
 
-        # Preparing the data to compare, creating an average vector of the pivots.        
-        if file != False:
-            avgVec = np.mean(data,axis = 0)       
-            fid = open(file, 'w')
-            np.set_printoptions(precision=3,suppress = True) # Prettier printing.
-            fid.write(str(avgVec))
-
+        # Preparing the data to compare, creating an average vector of the pivots.           
         if n_components != False:
             data = self.runPCA(data,n_components)
          
         # Compute clustering           
-        print("Running hierarchical clustering for {0} clusters".format(n_clusters))
+        print("Running hierarchical clustering for {0} clusters".format(run_number))
         startTime = clock()
-        ward = linkage(data, 'average', metric = 'cosine')
+        ward = linkage(data, 'single', metric = 'cosine')
         print("finished running after {0} secs".format(clock()-startTime))
         # calculate the dendrogram
         plt.figure(figsize=(25, 10))
@@ -710,31 +758,46 @@ class AlgorithmManager(object):
             leaf_font_size=8.,  # font size for the x axis labels
             truncate_mode='lastp',  # show only the last p merged clusters
             p=100,  # show only the last p merged clusters
-            show_leaf_counts=True,  # False = numbers in brackets are counts               
+            show_leaf_counts=False,  # False = numbers in brackets are counts               
             show_contracted=True,  # to get a distribution impression in truncated branches
             count_sort = 'descendent',
             distance_sort = False
         )
-        plt.savefig("plot{0}{1}attempt.png".format(pivot,n_clusters))        
-
+        plt.savefig("plot{0}{1}{2}HC.png".format(value,pivot,run_number))
+        if clSizes != False:
+            sizesFid = open(clSizes,'w')
+            max_d = 0.7
+            clusters = fcluster(ward, max_d, criterion='distance')
+            n_clusters = clusters.max()     
+            for i in range(1, n_clusters):
+                    cluster_i_size = 0
+                    for val in clusters:
+                        if val == i:
+                            cluster_i_size = cluster_i_size + 1             
+                    sizesFid.write("\nThe size of cluster {0} is {1}".format(i,cluster_i_size))
+            sizesFid.close()
     '''
         Utility function for clustering.
 
-        Pre: gets a file path or False, and a pivot label, default is Aid.
+        Input:
+           value -         What are the values we want to make from the one-of-k vectors, can be either QueryName or Pn.
+           pivot -         According to what pivot create the one-of-k vectors, either Aid or Sid.
+           normalize -     A flag for using normalization, if the flag is true, each coordinate is normalized, and then multiplied by the factor.
+           factor -        See the above.
 
-        Post: Process the dataframe, and creates a ndarray of operations by the pivot label.
-                If the file path isn't False, saves the ndarray to file.
+        Output: 
+            Process the dataframe, and returns a ndarray of operations by the pivot label.
     '''
-    def loadOperationsByOneOfK(self, file, pivot='Aid', normalize=True, factor=100):
+    def loadOperationsByOneOfK(self, pivot='Aid', value="QueryName", normalize=True, factor=100):
         
-        data = self.dataManager.loadData([pivot,"QueryName"],transformFields=True)
+        data = self.dataManager.loadData([pivot,value],transformFields=True)
         print("\n")
         data = data.sort_values(by=pivot)
         #print(data.head(50))
 
         # Compute the One of K matrix's size.
         temp = data.max()     
-        numOfTypes = temp['QueryName'] + 1
+        numOfTypes = temp[value] + 1
         numOfPivots = temp[pivot]  + 1      
         
         print("num of operation types {0} , num of pivot items {1}".format(numOfTypes, numOfPivots))
@@ -768,9 +831,7 @@ class AlgorithmManager(object):
             print "and after normalization is : {0}".format(maxVect)
 
 
-        # print(vectByTypes[1:10])
-        if file != False:
-            vectByTypes.tofile(file, sep = "," , format = "%s")
+        # print(vectByTypes[1:10])        
         
         print('Finshed processing all the data.')
         return vectByTypes

@@ -1,0 +1,732 @@
+[ 0.147  2.407  2.576  0.345  0.023  0.723  0.195  0.415  0.493  1.505
+  0.011  0.001  0.001  0.013  0.074  0.     0.072  0.     0.     0.     0.335
+  0.504  0.005  0.229  0.009  1.855  0.     0.031  1.713  0.     0.505
+  0.506  0.827  0.016  0.118  0.119  0.568  0.046  0.114  0.728  0.     0.
+  0.031  0.078  0.     0.004  0.     0.092  4.716  4.042  0.035  0.     0.305
+  1.585  6.22   0.322  2.113  0.     0.001  0.015  0.029  0.     0.017
+  0.049  0.196  0.     0.97   0.012  0.07   0.09   1.777]
+
+The cluster centers for K=2
+[[   -0.841    -0.116     0.042     0.001     0.008]
+ [ 7095.94    979.309  -352.508    -8.758   -65.029]]
+The size of cluster 0 is 67523
+The size of cluster 1 is 8
+The inertia is 625639713.999
+
+
+
+
+
+
+The cluster centers for K=3
+[[  407.519  -430.499    92.859   -18.555   -97.312]
+ [ 7095.94    979.309  -352.508    -8.758   -65.029]
+ [   -2.498     1.631    -0.335     0.076     0.403]]
+The size of cluster 0 is 273
+The size of cluster 1 is 8
+The size of cluster 2 is 67250
+The inertia is 524105220.593
+
+
+
+
+
+
+The cluster centers for K=4
+[[   -2.553     1.703    -0.321     0.052     0.397]
+ [ 7095.94    979.309  -352.508    -8.758   -65.029]
+ [  388.4    -417.938    53.876    -4.803   -98.717]
+ [ 1837.847  -726.983  8722.806 -2052.108  2573.903]]
+The size of cluster 0 is 67231
+The size of cluster 1 is 8
+The size of cluster 2 is 291
+The size of cluster 3 is 1
+The inertia is 435792618.514
+
+
+
+
+
+
+The cluster centers for K=5
+[[  277.112  -285.185    29.293   -18.52    -54.536]
+ [ 4539.478 -2215.966  -575.542  -532.449    29.187]
+ [ 8447.247  3040.675   -35.973  1276.574    23.678]
+ [ 1837.847  -726.983  8722.806 -2052.108  2573.903]
+ [   -3.231     2.387    -0.319     0.155     0.409]]
+The size of cluster 0 is 551
+The size of cluster 1 is 6
+The size of cluster 2 is 4
+The size of cluster 3 is 1
+The size of cluster 4 is 66969
+The inertia is 369634887.175
+
+
+
+
+
+
+The cluster centers for K=6
+[[   -3.12      2.238    -0.311     0.168     0.411]
+ [ 9318.082  3385.837   -82.947  1656.905    62.75 ]
+ [ 5732.739   297.806  -614.393 -1443.777  -274.4  ]
+ [ 1837.847  -726.983  8722.806 -2052.108  2573.903]
+ [  298.422  -302.83     30.543   -24.138   -60.088]
+ [ 4029.166 -5048.188  -173.955  1781.194   314.109]]
+The size of cluster 0 is 67022
+The size of cluster 1 is 3
+The size of cluster 2 is 4
+The size of cluster 3 is 1
+The size of cluster 4 is 499
+The size of cluster 5 is 2
+The inertia is 317843737.714
+
+
+
+
+
+
+The cluster centers for K=7
+[[   -3.259     2.416    -0.256     0.149     0.333]
+ [  310.415  -284.984   453.05   -180.389  -989.074]
+ [ 5732.739   297.806  -614.393 -1443.777  -274.4  ]
+ [ 1837.847  -726.983  8722.806 -2052.108  2573.903]
+ [  275.988  -286.842    -8.314    -8.29     18.855]
+ [ 4029.166 -5048.188  -173.955  1781.194   314.109]
+ [ 9318.082  3385.837   -82.947  1656.905    62.75 ]]
+The size of cluster 0 is 66955
+The size of cluster 1 is 35
+The size of cluster 2 is 4
+The size of cluster 3 is 1
+The size of cluster 4 is 531
+The size of cluster 5 is 2
+The size of cluster 6 is 3
+The inertia is 276947593.734
+
+
+
+
+
+
+The cluster centers for K=8
+[[   -3.323     2.489    -0.26      0.151     0.343]
+ [ 4604.936  1172.087   229.652   331.07   -419.703]
+ [ 9318.082  3385.837   -82.947  1656.905    62.75 ]
+ [ 1837.847  -726.983  8722.806 -2052.108  2573.903]
+ [  261.312  -280.605   -12.107   -12.247    17.871]
+ [ 4029.166 -5048.188  -173.955  1781.194   314.109]
+ [  317.637  -302.254   446.029  -164.138  -945.21 ]
+ [ 7717.87  -1944.238 -1839.701 -4800.401  1238.211]]
+The size of cluster 0 is 66922
+The size of cluster 1 is 4
+The size of cluster 2 is 3
+The size of cluster 3 is 1
+The size of cluster 4 is 560
+The size of cluster 5 is 2
+The size of cluster 6 is 38
+The size of cluster 7 is 1
+The inertia is 236536278.211
+
+
+
+
+
+
+The cluster centers for K=9
+[[   -4.216     3.291    -0.302     0.234     0.403]
+ [ 9318.082  3385.837   -82.947  1656.905    62.75 ]
+ [  541.79   -884.469   -39.797   182.883    35.83 ]
+ [ 4604.936  1172.087   229.652   331.07   -419.703]
+ [ 1837.847  -726.983  8722.806 -2052.108  2573.903]
+ [ 4029.166 -5048.188  -173.955  1781.194   314.109]
+ [  165.622  -151.233    -1.046   -21.667     2.52 ]
+ [ 7717.87  -1944.238 -1839.701 -4800.401  1238.211]
+ [  284.043  -250.795   453.835  -197.138  -959.164]]
+The size of cluster 0 is 66381
+The size of cluster 1 is 3
+The size of cluster 2 is 61
+The size of cluster 3 is 4
+The size of cluster 4 is 1
+The size of cluster 5 is 2
+The size of cluster 6 is 1042
+The size of cluster 7 is 1
+The size of cluster 8 is 36
+The inertia is 200446718.529
+
+
+
+
+
+
+The cluster centers for K=10
+[[   -4.595     3.744    -0.38      0.144     0.478]
+ [ 9318.082  3385.837   -82.947  1656.905    62.75 ]
+ [ 4029.166 -5048.188  -173.955  1781.194   314.109]
+ [ 1837.847  -726.983  8722.806 -2052.108  2573.903]
+ [  510.958  -917.01    -10.87    257.223    21.755]
+ [  284.043  -250.795   453.835  -197.138  -959.164]
+ [ 4604.936  1172.087   229.652   331.07   -419.703]
+ [  111.948  -127.915    10.564    15.819    -7.169]
+ [ 7717.87  -1944.238 -1839.701 -4800.401  1238.211]
+ [  419.356  -179.072   -86.805  -301.259    61.22 ]]
+The size of cluster 0 is 65997
+The size of cluster 1 is 3
+The size of cluster 2 is 2
+The size of cluster 3 is 1
+The size of cluster 4 is 55
+The size of cluster 5 is 36
+The size of cluster 6 is 4
+The size of cluster 7 is 1299
+The size of cluster 8 is 1
+The size of cluster 9 is 133
+The inertia is 177254688.789
+
+
+
+
+
+
+The cluster centers for K=11
+[[  110.913  -126.98      9.028    13.755    -7.469]
+ [ 9318.082  3385.837   -82.947  1656.905    62.75 ]
+ [  505.913  -924.131   -33.804   264.66     16.374]
+ [ 1837.847  -726.983  8722.806 -2052.108  2573.903]
+ [ 7717.87  -1944.238 -1839.701 -4800.401  1238.211]
+ [ 4029.166 -5048.188  -173.955  1781.194   314.109]
+ [   -4.618     3.764    -0.377     0.149     0.476]
+ [  284.043  -250.795   453.835  -197.138  -959.164]
+ [ 5071.028  1045.154  -205.956  -324.902  -778.604]
+ [ 2090.856   979.081  1058.325  1557.767   533.045]
+ [  414.519  -193.916   -80.581  -314.568    63.638]]
+The size of cluster 0 is 1321
+The size of cluster 1 is 3
+The size of cluster 2 is 54
+The size of cluster 3 is 1
+The size of cluster 4 is 1
+The size of cluster 5 is 2
+The size of cluster 6 is 65978
+The size of cluster 7 is 36
+The size of cluster 8 is 3
+The size of cluster 9 is 3
+The size of cluster 10 is 129
+The inertia is 159303767.227
+
+
+
+
+
+
+The cluster centers for K=12
+[[    -4.62       3.766     -0.377      0.148      0.476]
+ [  8163.24    3153.654    422.064   2369.172    517.066]
+ [  5071.028   1045.154   -205.956   -324.902   -778.604]
+ [  1837.847   -726.983   8722.806  -2052.108   2573.903]
+ [   510.958   -917.01     -10.87     257.223     21.755]
+ [   284.043   -250.795    453.835   -197.138   -959.164]
+ [   411.638   -191.271    -90.801   -315.898     61.695]
+ [   110.832   -126.875      9.011     13.758     -7.447]
+ [ 11627.764   3850.202  -1092.97     232.372   -845.882]
+ [  4029.166  -5048.188   -173.955   1781.194    314.109]
+ [  2090.856    979.081   1058.325   1557.767    533.045]
+ [  7717.87   -1944.238  -1839.701  -4800.401   1238.211]]
+The size of cluster 0 is 65977
+The size of cluster 1 is 2
+The size of cluster 2 is 3
+The size of cluster 3 is 1
+The size of cluster 4 is 55
+The size of cluster 5 is 36
+The size of cluster 6 is 128
+The size of cluster 7 is 1322
+The size of cluster 8 is 1
+The size of cluster 9 is 2
+The size of cluster 10 is 3
+The size of cluster 11 is 1
+The inertia is 145135659.018
+
+
+
+
+
+
+The cluster centers for K=13
+[[    -4.617      3.764     -0.377      0.149      0.476]
+ [  5071.028   1045.154   -205.956   -324.902   -778.604]
+ [   510.958   -917.01     -10.87     257.223     21.755]
+ [  1837.847   -726.983   8722.806  -2052.108   2573.903]
+ [   411.638   -191.271    -90.801   -315.898     61.695]
+ [   110.921   -127.058      9.037     13.778     -7.479]
+ [  7717.87   -1944.238  -1839.701  -4800.401   1238.211]
+ [  5882.321  -3514.266   -113.651    734.325    389.124]
+ [   284.043   -250.795    453.835   -197.138   -959.164]
+ [  8163.24    3153.654    422.064   2369.172    517.066]
+ [ 11627.764   3850.202  -1092.97     232.372   -845.882]
+ [  2090.856    979.081   1058.325   1557.767    533.045]
+ [  2176.011  -6582.11    -234.26    2828.062    239.094]]
+The size of cluster 0 is 65978
+The size of cluster 1 is 3
+The size of cluster 2 is 55
+The size of cluster 3 is 1
+The size of cluster 4 is 128
+The size of cluster 5 is 1321
+The size of cluster 6 is 1
+The size of cluster 7 is 1
+The size of cluster 8 is 36
+The size of cluster 9 is 2
+The size of cluster 10 is 1
+The size of cluster 11 is 3
+The size of cluster 12 is 1
+The inertia is 131351007.499
+
+
+
+
+
+
+The cluster centers for K=14
+[[    -5.346      4.251     -0.505      0.322      0.596]
+ [  5071.028   1045.154   -205.956   -324.902   -778.604]
+ [   624.428  -1177.283    -13.366    341.106    -13.088]
+ [  5882.321  -3514.266   -113.651    734.325    389.124]
+ [  1837.847   -726.983   8722.806  -2052.108   2573.903]
+ [   179.909   -315.279      6.589     92.858      5.946]
+ [  7717.87   -1944.238  -1839.701  -4800.401   1238.211]
+ [   290.794   -254.81     454.518   -201.53    -992.192]
+ [  8163.24    3153.654    422.064   2369.172    517.066]
+ [   458.333   -206.138   -103.954   -363.715     67.509]
+ [  2090.856    979.081   1058.325   1557.767    533.045]
+ [ 11627.764   3850.202  -1092.97     232.372   -845.882]
+ [  2176.011  -6582.11    -234.26    2828.062    239.094]
+ [    83.022    -68.24       9.183    -10.033     -8.904]]
+The size of cluster 0 is 65177
+The size of cluster 1 is 3
+The size of cluster 2 is 29
+The size of cluster 3 is 1
+The size of cluster 4 is 1
+The size of cluster 5 is 276
+The size of cluster 6 is 1
+The size of cluster 7 is 34
+The size of cluster 8 is 2
+The size of cluster 9 is 99
+The size of cluster 10 is 3
+The size of cluster 11 is 1
+The size of cluster 12 is 1
+The size of cluster 13 is 1903
+The inertia is 117832616.781
+
+
+
+
+
+
+The cluster centers for K=15
+[[    -5.671      4.554     -0.559      0.308      0.63 ]
+ [  7717.87   -1944.238  -1839.701  -4800.401   1238.211]
+ [  8163.24    3153.654    422.064   2369.172    517.066]
+ [  2176.011  -6582.11    -234.26    2828.062    239.094]
+ [  1837.847   -726.983   8722.806  -2052.108   2573.903]
+ [   507.118   -949.837      9.429    304.405      5.322]
+ [  2090.856    979.081   1058.325   1557.767    533.045]
+ [   290.386   -255.116    456.987   -199.048   -973.127]
+ [  5071.028   1045.154   -205.956   -324.902   -778.604]
+ [  5882.321  -3514.266   -113.651    734.325    389.124]
+ [ 11627.764   3850.202  -1092.97     232.372   -845.882]
+ [   896.961   -510.115   -262.301   -799.902    180.591]
+ [   304.895   -128.969    -57.615   -203.259     35.078]
+ [   148.252   -258.196      3.999     79.796      2.264]
+ [    63.213    -53.853     10.677     -4.413     -9.22 ]]
+The size of cluster 0 is 64616
+The size of cluster 1 is 1
+The size of cluster 2 is 2
+The size of cluster 3 is 1
+The size of cluster 4 is 1
+The size of cluster 5 is 45
+The size of cluster 6 is 3
+The size of cluster 7 is 35
+The size of cluster 8 is 3
+The size of cluster 9 is 1
+The size of cluster 10 is 1
+The size of cluster 11 is 18
+The size of cluster 12 is 175
+The size of cluster 13 is 353
+The size of cluster 14 is 2276
+The inertia is 107190511.28
+
+
+
+
+
+
+The cluster centers for K=16
+[[    -5.694      4.596     -0.516      0.286      0.582]
+ [ 11627.764   3850.202  -1092.97     232.372   -845.882]
+ [  5882.321  -3514.266   -113.651    734.325    389.124]
+ [  8163.24    3153.654    422.064   2369.172    517.066]
+ [  5071.028   1045.154   -205.956   -324.902   -778.604]
+ [   315.481   -126.152    -60.18    -197.041     41.964]
+ [  1837.847   -726.983   8722.806  -2052.108   2573.903]
+ [   153.717   -270.156      0.395     86.954      7.082]
+ [  7717.87   -1944.238  -1839.701  -4800.401   1238.211]
+ [  2342.253   1139.374   1463.192   2011.566    705.226]
+ [   309.433   -273.818    573.784   -272.253  -1407.548]
+ [   516.88   -1016.304     -4.675    331.254    -32.429]
+ [   896.961   -510.115   -262.301   -799.902    180.591]
+ [    61.493    -54.345      4.17      -1.696     -1.532]
+ [  2176.011  -6582.11    -234.26    2828.062    239.094]
+ [   170.092   -126.65     245.171    -94.04    -310.779]]
+The size of cluster 0 is 64553
+The size of cluster 1 is 1
+The size of cluster 2 is 1
+The size of cluster 3 is 2
+The size of cluster 4 is 3
+The size of cluster 5 is 172
+The size of cluster 6 is 1
+The size of cluster 7 is 329
+The size of cluster 8 is 1
+The size of cluster 9 is 2
+The size of cluster 10 is 16
+The size of cluster 11 is 39
+The size of cluster 12 is 18
+The size of cluster 13 is 2306
+The size of cluster 14 is 1
+The size of cluster 15 is 86
+The inertia is 97124156.8563
+
+
+
+
+
+
+The cluster centers for K=17
+[[    -5.876      4.713     -0.556      0.315      0.614]
+ [  5071.028   1045.154   -205.956   -324.902   -778.604]
+ [  1837.847   -726.983   8722.806  -2052.108   2573.903]
+ [  8163.24    3153.654    422.064   2369.172    517.066]
+ [   362.287   -574.767     -1.338    165.461     18.22 ]
+ [  2176.011  -6582.11    -234.26    2828.062    239.094]
+ [   333.744   -309.429    554.74    -248.303  -1376.743]
+ [   121.233   -201.571     -0.18      62.371      5.65 ]
+ [  7717.87   -1944.238  -1839.701  -4800.401   1238.211]
+ [   811.504   -384.937   -242.735   -786.41     153.586]
+ [  5882.321  -3514.266   -113.651    734.325    389.124]
+ [  2090.856    979.081   1058.325   1557.767    533.045]
+ [    54.248    -43.892      5.006     -3.771     -2.259]
+ [ 11627.764   3850.202  -1092.97     232.372   -845.882]
+ [   713.545  -1427.283    -19.929    404.479    -26.227]
+ [   155.396   -114.996    227.266    -92.814   -314.14 ]
+ [   290.195   -126.169    -56.524   -199.977     40.684]]
+The size of cluster 0 is 64222
+The size of cluster 1 is 3
+The size of cluster 2 is 1
+The size of cluster 3 is 2
+The size of cluster 4 is 70
+The size of cluster 5 is 1
+The size of cluster 6 is 17
+The size of cluster 7 is 439
+The size of cluster 8 is 1
+The size of cluster 9 is 18
+The size of cluster 10 is 1
+The size of cluster 11 is 3
+The size of cluster 12 is 2469
+The size of cluster 13 is 1
+The size of cluster 14 is 17
+The size of cluster 15 is 88
+The size of cluster 16 is 178
+The inertia is 89376354.3524
+
+
+
+
+
+
+The cluster centers for K=18
+[[    -5.858      4.714     -0.526      0.299      0.585]
+ [  8163.24    3153.654    422.064   2369.172    517.066]
+ [   713.545  -1427.283    -19.929    404.479    -26.227]
+ [  1837.847   -726.983   8722.806  -2052.108   2573.903]
+ [  7717.87   -1944.238  -1839.701  -4800.401   1238.211]
+ [    54.2      -44.795      1.348     -2.233      0.719]
+ [  5071.028   1045.154   -205.956   -324.902   -778.604]
+ [  2176.011  -6582.11    -234.26    2828.062    239.094]
+ [   811.504   -384.937   -242.735   -786.41     153.586]
+ [  5882.321  -3514.266   -113.651    734.325    389.124]
+ [   359.45    -572.229      6.971    159.04      14.322]
+ [  2090.856    979.081   1058.325   1557.767    533.045]
+ [   119.543    -81.835    168.51     -70.698   -195.361]
+ [ 11627.764   3850.202  -1092.97     232.372   -845.882]
+ [   293.252   -125.441    -59.194   -201.045     41.473]
+ [   276.32    -400.872    760.643   -335.801  -2515.265]
+ [   306.649   -258.461    457.552   -197.977   -944.856]
+ [   119.711   -202.751     -1.94      64.556      9.424]]
+The size of cluster 0 is 64246
+The size of cluster 1 is 2
+The size of cluster 2 is 17
+The size of cluster 3 is 1
+The size of cluster 4 is 1
+The size of cluster 5 is 2399
+The size of cluster 6 is 3
+The size of cluster 7 is 1
+The size of cluster 8 is 18
+The size of cluster 9 is 1
+The size of cluster 10 is 72
+The size of cluster 11 is 3
+The size of cluster 12 is 141
+The size of cluster 13 is 1
+The size of cluster 14 is 174
+The size of cluster 15 is 3
+The size of cluster 16 is 24
+The size of cluster 17 is 424
+The inertia is 83344266.4448
+
+
+
+
+
+
+The cluster centers for K=19
+[[    -5.885      4.727     -0.542      0.313      0.599]
+ [  8163.24    3153.654    422.064   2369.172    517.066]
+ [  1837.847   -726.983   8722.806  -2052.108   2573.903]
+ [   118.489   -200.19      -2.065     63.634      9.172]
+ [  2176.011  -6582.11    -234.26    2828.062    239.094]
+ [  5071.028   1045.154   -205.956   -324.902   -778.604]
+ [   595.767  -1325.988      5.763    481.241    -47.968]
+ [  7717.87   -1944.238  -1839.701  -4800.401   1238.211]
+ [   276.32    -400.872    760.643   -335.801  -2515.265]
+ [   283.64    -125.212    -57.037   -196.988     40.527]
+ [   315.82    -275.263    449.144   -195.98    -982.817]
+ [  5882.321  -3514.266   -113.651    734.325    389.124]
+ [  2090.856    979.081   1058.325   1557.767    533.045]
+ [   350.059   -563.373     11.489    151.316     12.914]
+ [    53.464    -43.542      2.932     -3.017     -0.48 ]
+ [   783.465   -326.896   -202.121   -633.268    119.824]
+ [   130.064    -90.05     184.54     -74.091   -222.291]
+ [ 11627.764   3850.202  -1092.97     232.372   -845.882]
+ [  1768.338  -1607.764   -667.092  -1498.579    529.202]]
+The size of cluster 0 is 64197
+The size of cluster 1 is 2
+The size of cluster 2 is 1
+The size of cluster 3 is 435
+The size of cluster 4 is 1
+The size of cluster 5 is 3
+The size of cluster 6 is 18
+The size of cluster 7 is 1
+The size of cluster 8 is 3
+The size of cluster 9 is 178
+The size of cluster 10 is 22
+The size of cluster 11 is 1
+The size of cluster 12 is 3
+The size of cluster 13 is 69
+The size of cluster 14 is 2454
+The size of cluster 15 is 20
+The size of cluster 16 is 120
+The size of cluster 17 is 1
+The size of cluster 18 is 2
+The inertia is 77154291.0896
+
+
+
+
+
+
+The cluster centers for K=20
+[[    51.48     -40.488      3.509     -3.881     -0.942]
+ [  8163.24    3153.654    422.064   2369.172    517.066]
+ [  1768.338  -1607.764   -667.092  -1498.579    529.202]
+ [  1837.847   -726.983   8722.806  -2052.108   2573.903]
+ [   112.769   -183.664     -1.077     59.215      8.139]
+ [  5071.028   1045.154   -205.956   -324.902   -778.604]
+ [  2176.011  -6582.11    -234.26    2828.062    239.094]
+ [   254.842   -133.322    -63.124   -205.015     44.255]
+ [  7717.87   -1944.238  -1839.701  -4800.401   1238.211]
+ [   600.958  -1308.332     10.182    449.802    -51.699]
+ [  5882.321  -3514.266   -113.651    734.325    389.124]
+ [   315.82    -275.263    449.144   -195.98    -982.817]
+ [    -5.943      4.762     -0.553      0.322      0.612]
+ [  2342.253   1139.374   1463.192   2011.566    705.226]
+ [ 11627.764   3850.202  -1092.97     232.372   -845.882]
+ [   276.32    -400.872    760.643   -335.801  -2515.265]
+ [   125.986    -89.922    175.789    -74.236   -236.062]
+ [   739.443   -354.231   -220.502   -716.751    157.052]
+ [   298.575   -525.611    -11.89     150.54      12.042]
+ [   792.476    -63.941    173.157    -16.45      14.038]]
+The size of cluster 0 is 2508
+The size of cluster 1 is 2
+The size of cluster 2 is 2
+The size of cluster 3 is 1
+The size of cluster 4 is 477
+The size of cluster 5 is 3
+The size of cluster 6 is 1
+The size of cluster 7 is 173
+The size of cluster 8 is 1
+The size of cluster 9 is 19
+The size of cluster 10 is 1
+The size of cluster 11 is 22
+The size of cluster 12 is 64086
+The size of cluster 13 is 2
+The size of cluster 14 is 1
+The size of cluster 15 is 3
+The size of cluster 16 is 114
+The size of cluster 17 is 17
+The size of cluster 18 is 80
+The size of cluster 19 is 18
+The inertia is 72584097.2147
+
+
+
+
+
+
+The cluster centers for K=21
+[[    51.489    -41.774      0.113     -2.086      1.666]
+ [  5882.321  -3514.266   -113.651    734.325    389.124]
+ [  8163.24    3153.654    422.064   2369.172    517.066]
+ [  1837.847   -726.983   8722.806  -2052.108   2573.903]
+ [   833.58     -60.762    229.162    -13.495     28.963]
+ [   114.183   -186.318     -1.402     60.009      8.753]
+ [  7717.87   -1944.238  -1839.701  -4800.401   1238.211]
+ [   296.887   -247.329    433.718   -190.235   -869.981]
+ [  2176.011  -6582.11    -234.26    2828.062    239.094]
+ [  4689.169    565.136   -361.408   -555.144  -1121.138]
+ [   298.044   -524.27     -10.523    149.347      7.16 ]
+ [   600.958  -1308.332     10.182    449.802    -51.699]
+ [ 11627.764   3850.202  -1092.97     232.372   -845.882]
+ [  2342.253   1139.374   1463.192   2011.566    705.226]
+ [   263.061   -131.14     -67.228   -204.491     42.718]
+ [  1768.338  -1607.764   -667.092  -1498.579    529.202]
+ [    -5.921      4.764     -0.529      0.307      0.591]
+ [   276.32    -400.872    760.643   -335.801  -2515.265]
+ [    99.413    -67.835    143.237    -63.832   -162.762]
+ [  5834.745   2005.192    104.947    135.581    -93.537]
+ [   739.443   -354.231   -220.502   -716.751    157.052]]
+The size of cluster 0 is 2429
+The size of cluster 1 is 1
+The size of cluster 2 is 2
+The size of cluster 3 is 1
+The size of cluster 4 is 15
+The size of cluster 5 is 464
+The size of cluster 6 is 1
+The size of cluster 7 is 29
+The size of cluster 8 is 1
+The size of cluster 9 is 2
+The size of cluster 10 is 81
+The size of cluster 11 is 19
+The size of cluster 12 is 1
+The size of cluster 13 is 2
+The size of cluster 14 is 171
+The size of cluster 15 is 2
+The size of cluster 16 is 64117
+The size of cluster 17 is 3
+The size of cluster 18 is 172
+The size of cluster 19 is 1
+The size of cluster 20 is 17
+The inertia is 69087627.1635
+
+
+
+
+
+
+The cluster centers for K=22
+[[    -6.213      4.926     -0.612      0.364      0.646]
+ [  4689.169    565.136   -361.408   -555.144  -1121.138]
+ [   407.88    -723.86     -53.41     199.355     43.675]
+ [  8163.24    3153.654    422.064   2369.172    517.066]
+ [  2176.011  -6582.11    -234.26    2828.062    239.094]
+ [   252.64    -131.091    -64.097   -201.654     43.652]
+ [   306.649   -258.461    457.552   -197.977   -944.856]
+ [  1837.847   -726.983   8722.806  -2052.108   2573.903]
+ [  7717.87   -1944.238  -1839.701  -4800.401   1238.211]
+ [ 11627.764   3850.202  -1092.97     232.372   -845.882]
+ [    87.151   -122.929     -2.194     35.236      4.763]
+ [  2342.253   1139.374   1463.192   2011.566    705.226]
+ [   117.796    -80.638    163.833    -73.032   -197.999]
+ [   627.215  -1427.147     55.836    559.991   -104.251]
+ [  5882.321  -3514.266   -113.651    734.325    389.124]
+ [   739.443   -354.231   -220.502   -716.751    157.052]
+ [   787.386    -30.139    168.149    -22.339     17.164]
+ [  1768.338  -1607.764   -667.092  -1498.579    529.202]
+ [    41.556    -27.495      3.396     -6.584     -1.161]
+ [   276.32    -400.872    760.643   -335.801  -2515.265]
+ [   175.848   -320.65       9.784    102.276      2.348]
+ [  5834.745   2005.192    104.947    135.581    -93.537]]
+The size of cluster 0 is 63457
+The size of cluster 1 is 2
+The size of cluster 2 is 39
+The size of cluster 3 is 2
+The size of cluster 4 is 1
+The size of cluster 5 is 177
+The size of cluster 6 is 24
+The size of cluster 7 is 1
+The size of cluster 8 is 1
+The size of cluster 9 is 1
+The size of cluster 10 is 713
+The size of cluster 11 is 2
+The size of cluster 12 is 137
+The size of cluster 13 is 13
+The size of cluster 14 is 1
+The size of cluster 15 is 17
+The size of cluster 16 is 17
+The size of cluster 17 is 2
+The size of cluster 18 is 2752
+The size of cluster 19 is 3
+The size of cluster 20 is 168
+The size of cluster 21 is 1
+The inertia is 66040086.6157
+
+
+
+
+
+
+The cluster centers for K=23
+[[    -6.502      5.138     -0.686      0.374      0.714]
+ [  8163.24    3153.654    422.064   2369.172    517.066]
+ [  5882.321  -3514.266   -113.651    734.325    389.124]
+ [  1837.847   -726.983   8722.806  -2052.108   2573.903]
+ [   803.181    -56.335    193.306    -15.709     13.702]
+ [   132.077   -243.564     -0.802     81.19      10.429]
+ [  4689.169    565.136   -361.408   -555.144  -1121.138]
+ [   276.32    -400.872    760.643   -335.801  -2515.265]
+ [  2176.011  -6582.11    -234.26    2828.062    239.094]
+ [   757.701   -365.968   -229.232   -725.234    157.703]
+ [   315.82    -275.263    449.144   -195.98    -982.817]
+ [  7717.87   -1944.238  -1839.701  -4800.401   1238.211]
+ [  2342.253   1139.374   1463.192   2011.566    705.226]
+ [ 11627.764   3850.202  -1092.97     232.372   -845.882]
+ [   283.879   -169.635    -79.425   -263.926     57.942]
+ [    62.758    -96.727     -0.59      30.078      2.941]
+ [   331.689   -570.966    -19.777    163.031     13.323]
+ [   149.124    -48.675    -17.83     -61.968     10.232]
+ [   128.381    -94.911    180.075    -75.776   -230.055]
+ [   595.767  -1325.988      5.763    481.241    -47.968]
+ [  1768.338  -1607.764   -667.092  -1498.579    529.202]
+ [  5834.745   2005.192    104.947    135.581    -93.537]
+ [    28.49     -19.778      5.989     -3.576     -3.348]]
+The size of cluster 0 is 62522
+The size of cluster 1 is 2
+The size of cluster 2 is 1
+The size of cluster 3 is 1
+The size of cluster 4 is 17
+The size of cluster 5 is 260
+The size of cluster 6 is 2
+The size of cluster 7 is 3
+The size of cluster 8 is 1
+The size of cluster 9 is 16
+The size of cluster 10 is 22
+The size of cluster 11 is 1
+The size of cluster 12 is 2
+The size of cluster 13 is 1
+The size of cluster 14 is 107
+The size of cluster 15 is 760
+The size of cluster 16 is 63
+The size of cluster 17 is 355
+The size of cluster 18 is 117
+The size of cluster 19 is 18
+The size of cluster 20 is 2
+The size of cluster 21 is 1
+The size of cluster 22 is 3257
+The inertia is 62354306.3169
+
+
+
+
